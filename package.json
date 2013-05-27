@@ -1,0 +1,18 @@
+{ "name": "busboy",
+  "version": "0.0.1",
+  "author": "Brian White <mscdex@mscdex.net>",
+  "description": "A node.js module for parsing incoming HTML form data",
+  "main": "./lib/main",
+  "dependencies": {
+    "dicer": "*",
+    "readable-stream": "*",
+    "iconv-lite": "0.2.10"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "engines": { "node": ">=0.8.0" },
+  "keywords": [ "uploads", "forms", "multipart", "form-data" ],
+  "licenses": [ { "type": "MIT", "url": "http://github.com/mscdex/busboy/raw/master/LICENSE" } ],
+  "repository" : { "type": "git", "url": "http://github.com/mscdex/busboy.git" }
+}
