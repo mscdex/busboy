@@ -170,3 +170,5 @@ Busboy methods
         * **files** - _integer_ - For multipart forms, the max number of file fields (Default: Infinity).
 
         * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
+
+        * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
