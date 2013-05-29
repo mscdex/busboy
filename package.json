@@ -4,7 +4,7 @@
   "description": "A node.js module for parsing incoming HTML form data",
   "main": "./lib/main",
   "dependencies": {
-    "dicer": "*",
+    "dicer": "0.1.2",
     "readable-stream": "*",
     "iconv-lite": "0.2.10"
   },
