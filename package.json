@@ -1,12 +1,11 @@
 { "name": "busboy",
   "version": "0.0.3",
   "author": "Brian White <mscdex@mscdex.net>",
-  "description": "A node.js module for parsing incoming HTML form data",
+  "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/main",
   "dependencies": {
     "dicer": "0.1.3",
-    "readable-stream": "*",
-    "iconv-lite": "0.2.10"
+    "readable-stream": "*"
   },
   "scripts": {
     "test": "node test/test.js"
