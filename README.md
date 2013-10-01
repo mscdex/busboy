@@ -73,33 +73,31 @@ http.createServer(function(req, res) {
 // Done parsing form!
 ```
 
-* Parsing `multipart/form-data` & saving files.  Keep track of the point where the files are all properly saved to disk.
+* Parsing `multipart/form-data` & saving files. Keep track of the point where the files are all properly saved to disk.
 
 ```javascript
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
-	var infiles = 0, outfiles = 0;
-	var done = false;
-    var busboy = new Busboy({ headers: req.headers });
-	console.log("Start parsing form...");
-	busboy.on('file', function(fieldname, file, filename) {
-	  infiles++;
-	  onFile(fieldname, file, filename, function(err) {
-	    outfiles++;
-		if (done) {
-			console.log(outfiles + "/" + infiles + " parts written to disk");
-		}
-		if (done && infiles === outfiles) {
-		  /*
-		   * ACTUAL EXIT CONDITION
-		   */
-	      console.log("All parts written to disk");
-		}
-	  });
+    var infiles = 0, outfiles = 0, done = false,
+        busboy = new Busboy({ headers: req.headers });
+    console.log('Start parsing form ...');
+    busboy.on('file', function(fieldname, file, filename) {
+      ++infiles;
+      onFile(fieldname, file, filename, function() {
+        ++outfiles;
+        if (done)
+          console.log(outfiles + '/' + infiles + ' parts written to disk');
+        if (done && infiles === outfiles) {
+          // ACTUAL EXIT CONDITION
+          console.log('All parts written to disk');
+          res.writeHead(200, { 'Connection': 'close' });
+          res.end("That's all folks!");
+        }
+      });
     });
     busboy.once('end', function() {
-	  console.log('Done parsing form!');
-	  done = true;
+      console.log('Done parsing form!');
+      done = true;
     });
     req.pipe(busboy);
   }
@@ -110,12 +108,12 @@ http.createServer(function(req, res) {
 function onFile(fieldname, file, filename, next) {
   // or save at some other location
   var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
-  file.on('end', function() {
+  file.once('end', function() {
     console.log(fieldname + '(' + filename + ') EOF');
   });
   fstream.once('close', function() {
     console.log(fieldname + '(' + filename + ') written to disk');
-	next();
+    next();
   });
   console.log(fieldname + '(' + filename + ') start saving');
   file.pipe(fstream);
