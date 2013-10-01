@@ -73,6 +73,55 @@ http.createServer(function(req, res) {
 // Done parsing form!
 ```
 
+* Parsing `multipart/form-data` & saving files.  Keep track of the point where the files are all properly saved to disk.
+
+```javascript
+http.createServer(function(req, res) {
+  if (req.method === 'POST') {
+	var infiles = 0, outfiles = 0;
+	var done = false;
+    var busboy = new Busboy({ headers: req.headers });
+	console.log("Start parsing form...");
+	busboy.on('file', function(fieldname, file, filename) {
+	  infiles++;
+	  onFile(fieldname, file, filename, function(err) {
+	    outfiles++;
+		if (done) {
+			console.log(outfiles + "/" + infiles + " parts written to disk");
+		}
+		if (done && infiles === outfiles) {
+		  /*
+		   * ACTUAL EXIT CONDITION
+		   */
+	      console.log("All parts written to disk");
+		}
+	  });
+    });
+    busboy.once('end', function() {
+	  console.log('Done parsing form!');
+	  done = true;
+    });
+    req.pipe(busboy);
+  }
+}).listen(8000, function() {
+  console.log('Listening for requests');
+});
+
+function onFile(fieldname, file, filename, next) {
+  // or save at some other location
+  var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
+  file.on('end', function() {
+    console.log(fieldname + '(' + filename + ') EOF');
+  });
+  fstream.once('close', function() {
+    console.log(fieldname + '(' + filename + ') written to disk');
+	next();
+  });
+  console.log(fieldname + '(' + filename + ') start saving');
+  file.pipe(fstream);
+}
+```
+
 * Parsing (urlencoded) with default options:
 
 ```javascript
