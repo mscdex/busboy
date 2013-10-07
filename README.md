@@ -187,7 +187,7 @@ _Busboy_ is a _WritableStream_
 Busboy (special) events
 -----------------------
 
-* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename) - Emitted for each new file form field found.
+* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream.
 
 * **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >valueTruncated, < _boolean_ >fieldnameTruncated) - Emitted for each new non-file field found.
 
