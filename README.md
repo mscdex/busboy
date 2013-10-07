@@ -31,8 +31,8 @@ var Busboy = require('busboy');
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename) {
-      console.log('File [' + fieldname +']: filename: ' + filename);
+    busboy.on('file', function(fieldname, file, filename, encoding) {
+      console.log('File [' + fieldname +']: filename: ' + filename + ', encoding: ' + encoding);
       file.on('data', function(data) {
         console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
       });
@@ -81,9 +81,9 @@ http.createServer(function(req, res) {
     var infiles = 0, outfiles = 0, done = false,
         busboy = new Busboy({ headers: req.headers });
     console.log('Start parsing form ...');
-    busboy.on('file', function(fieldname, file, filename) {
+    busboy.on('file', function(fieldname, file, filename, encoding) {
       ++infiles;
-      onFile(fieldname, file, filename, function() {
+      onFile(fieldname, file, filename, encoding, function() {
         ++outfiles;
         if (done)
           console.log(outfiles + '/' + infiles + ' parts written to disk');
@@ -105,7 +105,7 @@ http.createServer(function(req, res) {
   console.log('Listening for requests');
 });
 
-function onFile(fieldname, file, filename, next) {
+function onFile(fieldname, file, filename, encoding, next) {
   // or save at some other location
   var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
   file.once('end', function() {
