@@ -81,9 +81,9 @@ http.createServer(function(req, res) {
     var infiles = 0, outfiles = 0, done = false,
         busboy = new Busboy({ headers: req.headers });
     console.log('Start parsing form ...');
-    busboy.on('file', function(fieldname, file, filename, encoding) {
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       ++infiles;
-      onFile(fieldname, file, filename, encoding, function() {
+      onFile(fieldname, file, filename, function() {
         ++outfiles;
         if (done)
           console.log(outfiles + '/' + infiles + ' parts written to disk');
@@ -105,7 +105,7 @@ http.createServer(function(req, res) {
   console.log('Listening for requests');
 });
 
-function onFile(fieldname, file, filename, encoding, next) {
+function onFile(fieldname, file, filename, next) {
   // or save at some other location
   var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
   file.once('end', function() {
@@ -131,8 +131,8 @@ var Busboy = require('busboy');
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding) {
-      console.log('File [' + fieldname +']: filename: ' + filename + ', encoding: ' + encoding);
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+      console.log('File [' + fieldname +']: filename: ' + filename);
       file.on('data', function(data) {
         console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
       });
@@ -187,7 +187,7 @@ _Busboy_ is a _WritableStream_
 Busboy (special) events
 -----------------------
 
-* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream.
+* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream. `mimeType` contains the 'Content-Type' value for the file stream.
 
 * **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >valueTruncated, < _boolean_ >fieldnameTruncated) - Emitted for each new non-file field found.
 
