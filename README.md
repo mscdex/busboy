@@ -181,7 +181,7 @@ http.createServer(function(req, res) {
 API
 ===
 
-_Busboy_ is a _WritableStream_
+_Busboy_ is a _Writable_ stream
 
 Busboy (special) events
 -----------------------
