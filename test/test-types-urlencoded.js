@@ -1,9 +1,12 @@
 var UrlEncoded = require('../lib/types/urlencoded'),
     parseParams = require('../lib/utils').parseParams;
 
-var EventEmitter = require('events').EventEmitter,
+var path = require('path'),
+    EventEmitter = require('events').EventEmitter,
     inspect = require('util').inspect,
     assert = require('assert');
+
+var group = path.basename(__filename, '.js') + '/';
 
 var parsedConType;
 parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
@@ -152,5 +155,5 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
 });
 
 function makeMsg(what, msg) {
-  return '[' + what + ']: ' + msg;
+  return '[' + group + what + ']: ' + msg;
 }

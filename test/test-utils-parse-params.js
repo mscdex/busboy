@@ -1,5 +1,9 @@
 var parseParams = require('../lib/utils').parseParams;
-var assert = require('assert');
+
+var path = require('path'),
+    assert = require('assert');
+
+var group = path.basename(__filename, '.js') + '/';
 
 [
   { source: 'text/plain; encoding=utf8',
@@ -20,6 +24,6 @@ var assert = require('assert');
   },
 ].forEach(function(v) {
   var result = parseParams(v.source),
-      msg = '[' + v.what + ']: parsed parameters mismatch';
+      msg = '[' + group + v.what + ']: parsed parameters mismatch';
   assert.deepEqual(result, v.expected, msg);
 });

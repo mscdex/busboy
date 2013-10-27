@@ -1,5 +1,10 @@
 var Decoder = require('../lib/utils').Decoder;
+
 var assert = require('assert');
+var path = require('path'),
+    assert = require('assert');
+
+var group = path.basename(__filename, '.js') + '/';
 
 [
   { source: ['Hello world'],
@@ -47,6 +52,6 @@ var assert = require('assert');
   v.source.forEach(function(s) {
     result += dec.write(s);
   });
-  var msg = '[' + v.what + ']: decoded string mismatch';
+  var msg = '[' + group + v.what + ']: decoded string mismatch';
   assert.deepEqual(result, v.expected, msg);
 });
