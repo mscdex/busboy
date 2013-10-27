@@ -35,14 +35,14 @@ http.createServer(function(req, res) {
       file.on('data', function(data) {
         console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
       });
-      file.once('end', function() {
+      file.on('end', function() {
         console.log('File [' + fieldname +'] Finished');
       });
     });
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
-    busboy.once('end', function() {
+    busboy.on('end', function() {
       console.log('Done parsing form!');
       res.writeHead(303, { Connection: 'close', Location: '/' });
       res.end();
@@ -94,7 +94,7 @@ http.createServer(function(req, res) {
         }
       });
     });
-    busboy.once('end', function() {
+    busboy.on('end', function() {
       console.log('Done parsing form!');
       done = true;
     });
@@ -107,10 +107,10 @@ http.createServer(function(req, res) {
 function onFile(fieldname, file, filename, next) {
   // or save at some other location
   var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
-  file.once('end', function() {
+  file.on('end', function() {
     console.log(fieldname + '(' + filename + ') EOF');
   });
-  fstream.once('close', function() {
+  fstream.on('close', function() {
     console.log(fieldname + '(' + filename + ') written to disk');
     next();
   });
@@ -135,14 +135,14 @@ http.createServer(function(req, res) {
       file.on('data', function(data) {
         console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
       });
-      file.once('end', function() {
+      file.on('end', function() {
         console.log('File [' + fieldname +'] Finished');
       });
     });
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
-    busboy.once('end', function() {
+    busboy.on('end', function() {
       console.log('Done parsing form!');
       res.writeHead(303, { Connection: 'close', Location: '/' });
       res.end();
