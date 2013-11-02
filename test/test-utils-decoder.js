@@ -1,6 +1,5 @@
 var Decoder = require('../lib/utils').Decoder;
 
-var assert = require('assert');
 var path = require('path'),
     assert = require('assert');
 
