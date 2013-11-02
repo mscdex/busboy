@@ -30,7 +30,7 @@ var Busboy = require('busboy');
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding) {
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       console.log('File [' + fieldname +']: filename: ' + filename + ', encoding: ' + encoding);
       file.on('data', function(data) {
         console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
