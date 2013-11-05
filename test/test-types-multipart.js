@@ -69,11 +69,6 @@ function next() {
   busboy.on('end', function() {
     ++ends;
   });
-  mp = new Multipart(busboy,
-                     v.limits,
-                     null,
-                     parseParams('multipart/form-data; boundary=' + v.boundary));
-
   v.source.forEach(function(s) {
     mp.write(new Buffer(s, 'utf8'));
   });
@@ -103,6 +98,12 @@ function next() {
     if (t < tests.length)
       next();
   });
+  var cfg = {
+    limits: v.limits,
+    headers: null,
+    parsedConType: parseParams('multipart/form-data; boundary=' + v.boundary)
+  };
+  mp = new Multipart(busboy, cfg);
 }
 next();
 

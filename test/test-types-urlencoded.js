@@ -129,7 +129,12 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
   busboy.on('field', function(key, val, valTrunc, keyTrunc) {
     results.push([key, val, valTrunc, keyTrunc]);
   });
-  ue = new UrlEncoded(busboy, v.limits, null, parsedConType);
+  var cfg = {
+    limits: v.limits, 
+    headers: null, 
+    parsedConType: parsedConType
+  };
+  ue = new UrlEncoded(busboy, cfg);
 
   v.source.forEach(function(s) {
     ue.write(new Buffer(s, 'utf8'));
