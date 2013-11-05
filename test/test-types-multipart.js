@@ -6,6 +6,7 @@ var path = require('path'),
     inspect = require('util').inspect,
     assert = require('assert');
 
+var EMPTY_FN = function() {};
 
 var t = 0,
     group = path.basename(__filename, '.js') + '/';
@@ -48,8 +49,7 @@ function next() {
 
   var busboy = new EventEmitter(),
       mp,
-      results = [],
-      ends = 0;
+      results = [];
 
   busboy.on('field', function(key, val, valTrunc, keyTrunc) {
     results.push(['field', key, val, valTrunc, keyTrunc]);
@@ -67,20 +67,6 @@ function next() {
     });
   });
   busboy.on('end', function() {
-    ++ends;
-  });
-  v.source.forEach(function(s) {
-    mp.write(new Buffer(s, 'utf8'));
-  });
-  mp.end();
-
-  setImmediate(function() {
-    assert.equal(ends,
-                 1,
-                 makeMsg(v.what, "Incorrect 'end' count: "
-                                 + ends
-                                 + " instead of 1"));
-
     assert.deepEqual(results.length,
                      v.expected.length,
                      makeMsg(v.what, 'Parsed result count mismatch. Saw '
@@ -104,6 +90,11 @@ function next() {
     parsedConType: parseParams('multipart/form-data; boundary=' + v.boundary)
   };
   mp = new Multipart(busboy, cfg);
+
+  v.source.forEach(function(s) {
+    mp.write(new Buffer(s, 'utf8'), EMPTY_FN);
+  });
+  mp.end();
 }
 next();
 

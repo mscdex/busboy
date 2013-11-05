@@ -6,6 +6,8 @@ var path = require('path'),
     inspect = require('util').inspect,
     assert = require('assert');
 
+var EMPTY_FN = function() {};
+
 var group = path.basename(__filename, '.js') + '/';
 
 var parsedConType;
@@ -137,7 +139,7 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
   ue = new UrlEncoded(busboy, cfg);
 
   v.source.forEach(function(s) {
-    ue.write(new Buffer(s, 'utf8'));
+    ue.write(new Buffer(s, 'utf8'), EMPTY_FN);
   });
   ue.end();
 
