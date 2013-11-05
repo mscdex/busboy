@@ -201,7 +201,9 @@ Busboy methods
 
     * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
 
-    * **highWaterMark** - _integer_ - highWaterMark from WritableStream (Default: WritableStream default).
+    * **highWaterMark** - _integer_ - highWaterMark to use for this Busboy instance (Default: WritableStream default).
+
+    * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
 
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
