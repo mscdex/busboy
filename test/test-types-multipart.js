@@ -45,7 +45,10 @@ var tests = [
 ];
 
 function next() {
-  var v = tests[t++];
+  if (t === tests.length)
+    return;
+
+  var v = tests[t];
 
   var busboy = new EventEmitter(),
       mp,
@@ -81,8 +84,8 @@ function next() {
                                + '\nExpected: ' + inspect(v.expected[i]))
                       );
     });
-    if (t < tests.length)
-      next();
+    ++t;
+    next();
   });
   var cfg = {
     limits: v.limits,
@@ -101,3 +104,8 @@ next();
 function makeMsg(what, msg) {
   return '[' + group + what + ']: ' + msg;
 }
+
+process.on('exit', function() {
+  assert(t === tests.length,
+         makeMsg('Only ran ' + t + '/' + tests.length + ' tests'));
+});
