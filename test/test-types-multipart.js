@@ -42,6 +42,30 @@ var tests = [
     ],
     what: 'Fields and files'
   },
+  { source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="cont"',
+       '',
+       'some random content',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="pass"',
+       '',
+       'some random pass',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="bit"',
+       '',
+       '2',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
+      ].join('\r\n')
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      ['field', 'cont', 'some random content', false, false],
+      ['field', 'pass', 'some random pass', false, false],
+      ['field', 'bit', '2', false, false]
+    ],
+    what: 'Fields only'
+  },
 ];
 
 function next() {
@@ -106,6 +130,5 @@ function makeMsg(what, msg) {
 }
 
 process.on('exit', function() {
-  assert(t === tests.length,
-         makeMsg('Only ran ' + t + '/' + tests.length + ' tests'));
+  assert(t === tests.length, 'Only ran ' + t + '/' + tests.length + ' tests');
 });
