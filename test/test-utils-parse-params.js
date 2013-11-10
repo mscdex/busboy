@@ -22,6 +22,30 @@ var group = path.basename(__filename, '.js') + '/';
     expected: ['text/plain', ['encoding', 'utf8'], ['foo', 'bar'], 'test'],
     what: 'Multiple params with various spacing'
   },
+  { source: "text/plain; filename*=iso-8859-1'en'%A3%20rates",
+    expected: ['text/plain', ['filename', '£ rates']],
+    what: 'Extended parameter (RFC 5987) with language'
+  },
+  { source: "text/plain; filename*=utf-8''%c2%a3%20and%20%e2%82%ac%20rates",
+    expected: ['text/plain', ['filename', '£ and € rates']],
+    what: 'Extended parameter (RFC 5987) without language'
+  },
+  { source: "text/plain; filename*=utf-8''%E6%B5%8B%E8%AF%95%E6%96%87%E6%A1%A3",
+    expected: ['text/plain', ['filename', '测试文档']],
+    what: 'Extended parameter (RFC 5987) without language #2'
+  },
+  { source: "text/plain; filename*=iso-8859-1'en'%A3%20rates; altfilename*=utf-8''%c2%a3%20and%20%e2%82%ac%20rates",
+    expected: ['text/plain', ['filename', '£ rates'], ['altfilename', '£ and € rates']],
+    what: 'Multiple extended parameters (RFC 5987) with mixed charsets'
+  },
+  { source: "text/plain; filename*=iso-8859-1'en'%A3%20rates; altfilename=\"foobarbaz\"",
+    expected: ['text/plain', ['filename', '£ rates'], ['altfilename', 'foobarbaz']],
+    what: 'Mixed regular and extended parameters (RFC 5987)'
+  },
+  { source: "text/plain; filename=\"foobarbaz\"; altfilename*=iso-8859-1'en'%A3%20rates",
+    expected: ['text/plain', ['filename', 'foobarbaz'], ['altfilename', '£ rates']],
+    what: 'Mixed regular and extended parameters (RFC 5987) #2'
+  },
 ].forEach(function(v) {
   var result = parseParams(v.source),
       msg = '[' + group + v.what + ']: parsed parameters mismatch';
