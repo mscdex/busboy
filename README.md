@@ -205,6 +205,8 @@ Busboy methods
 
     * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
 
+    * **defCharset** - _string_ - Default character set to use when one isn't defined (Default: 'utf8').
+
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
         * **fieldNameSize** - _integer_ - Max field name size (Default: 100 bytes).
