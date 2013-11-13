@@ -46,11 +46,21 @@ var group = path.basename(__filename, '.js') + '/';
     expected: 'Hello world!',
     what: 'Plus and encoded byte'
   },
+  { source: ['5%2B5%3D10'],
+    expected: '5+5=10',
+    what: 'Encoded plus'
+  },
+  { source: ['5+%2B+5+%3D+10'],
+    expected: '5 + 5 = 10',
+    what: 'Spaces and encoded plus'
+  },
 ].forEach(function(v) {
   var dec = new Decoder(), result = '';
   v.source.forEach(function(s) {
     result += dec.write(s);
   });
-  var msg = '[' + group + v.what + ']: decoded string mismatch';
+  var msg = '[' + group + v.what + ']: decoded string mismatch.\n'
+            + 'Saw: ' + result + '\n'
+            + 'Expected: ' + v.expected;
   assert.deepEqual(result, v.expected, msg);
 });
