@@ -47,8 +47,8 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
                ['bar', undefined, false, false]],
     what: 'Two unassigned values and ampersand'
   },
-  { source: ['foo=bar+baz'],
-    expected: [['foo', 'bar baz', false, false]],
+  { source: ['foo=bar+baz%2Bquux'],
+    expected: [['foo', 'bar+baz+quux', false, false]],
     what: 'Assigned value with (plus) space'
   },
   { source: ['foo=bar%20baz%21'],
@@ -132,8 +132,8 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
     results.push([key, val, valTrunc, keyTrunc]);
   });
   var cfg = {
-    limits: v.limits, 
-    headers: null, 
+    limits: v.limits,
+    headers: null,
     parsedConType: parsedConType
   };
   ue = new UrlEncoded(busboy, cfg);
