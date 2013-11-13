@@ -48,7 +48,7 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
     what: 'Two unassigned values and ampersand'
   },
   { source: ['foo=bar+baz%2Bquux'],
-    expected: [['foo', 'bar+baz+quux', false, false]],
+    expected: [['foo', 'bar baz+quux', false, false]],
     what: 'Assigned value with (plus) space'
   },
   { source: ['foo=bar%20baz%21'],

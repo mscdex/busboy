@@ -39,12 +39,12 @@ var group = path.basename(__filename, '.js') + '/';
     what: 'Malformed encoded byte #2'
   },
   { source: ['Hello+world'],
-    expected: 'Hello+world',
-    what: 'Plus preservation'
+    expected: 'Hello world',
+    what: 'Plus to space'
   },
   { source: ['Hello+world%21'],
-    expected: 'Hello+world!',
-    what: 'Plus preservation and encoded byte'
+    expected: 'Hello world!',
+    what: 'Plus and encoded byte'
   },
 ].forEach(function(v) {
   var dec = new Decoder(), result = '';
