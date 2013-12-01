@@ -130,5 +130,5 @@ function makeMsg(what, msg) {
 }
 
 process.on('exit', function() {
-  assert(t === tests.length, 'Only ran ' + t + '/' + tests.length + ' tests');
+  assert(t === tests.length, 'Only finished ' + t + '/' + tests.length + ' tests');
 });
