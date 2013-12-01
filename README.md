@@ -56,7 +56,7 @@ http.createServer(function(req, res) {
                 <input type="file" name="filefield"><br />\
                 <input type="submit">\
               </form>\
-            </body>');
+            </body></html>');
   }
 }).listen(8000, function() {
   console.log('Listening for requests');
@@ -162,7 +162,7 @@ http.createServer(function(req, res) {
                 <input type="checkbox" name="checkfield">Node.js rules!<br />\
                 <input type="submit">\
               </form>\
-            </body>');
+            </body></html>');
   }
 }).listen(8000, function() {
   console.log('Listening for requests');
