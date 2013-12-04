@@ -8,12 +8,13 @@ var path = require('path'),
 
 var EMPTY_FN = function() {};
 
-var group = path.basename(__filename, '.js') + '/';
+var t = 0,
+    group = path.basename(__filename, '.js') + '/';
 
 var parsedConType;
 parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
 
-[
+var tests = [
   { source: ['foo'],
     expected: [['foo', undefined, false, false]],
     what: 'Unassigned value'
@@ -126,11 +127,39 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
     expected: [],
     what: 'Nothing'
   },
-].forEach(function(v) {
+];
+
+function next() {
+  if (t === tests.length)
+    return;
+
+  var v = tests[t];
+
   var busboy = new EventEmitter(), ue, results = [];
   busboy.on('field', function(key, val, valTrunc, keyTrunc) {
     results.push([key, val, valTrunc, keyTrunc]);
   });
+  busboy.on('end', function() {
+    assert.deepEqual(results.length,
+                     v.expected.length,
+                     makeMsg(v.what, 'Parsed result count mismatch. Saw '
+                                     + results.length
+                                     + '. Expected: ' + v.expected.length));
+
+    var i = 0;
+    results.forEach(function(result) {
+      assert.deepEqual(result,
+                       v.expected[i],
+                       makeMsg(v.what,
+                               'Result mismatch:\nParsed: ' + inspect(result)
+                               + '\nExpected: ' + inspect(v.expected[i]))
+                      );
+      ++i;
+    });
+    ++t;
+    next();
+  });
+
   var cfg = {
     limits: v.limits,
     headers: null,
@@ -142,25 +171,13 @@ parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
     ue.write(new Buffer(s, 'utf8'), EMPTY_FN);
   });
   ue.end();
-
-  assert.deepEqual(results.length,
-                   v.expected.length,
-                   makeMsg(v.what, 'Parsed result count mismatch. Saw '
-                                   + results.length
-                                   + '. Expected: ' + v.expected.length));
-
-  var i = 0;
-  results.forEach(function(result) {
-    assert.deepEqual(result,
-                     v.expected[i],
-                     makeMsg(v.what,
-                             'Result mismatch:\nParsed: ' + inspect(result)
-                             + '\nExpected: ' + inspect(v.expected[i]))
-                    );
-    ++i;
-  });
-});
+}
+next();
 
 function makeMsg(what, msg) {
   return '[' + group + what + ']: ' + msg;
 }
+
+process.on('exit', function() {
+  assert(t === tests.length, makeMsg('_exit', 'Only finished ' + t + '/' + tests.length + ' tests'));
+});
