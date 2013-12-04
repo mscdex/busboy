@@ -66,6 +66,13 @@ var tests = [
     ],
     what: 'Fields only'
   },
+  { source: [
+      ''
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [],
+    what: 'No fields and no files'
+  },
 ];
 
 function next() {
@@ -130,5 +137,5 @@ function makeMsg(what, msg) {
 }
 
 process.on('exit', function() {
-  assert(t === tests.length, 'Only finished ' + t + '/' + tests.length + ' tests');
+  assert(t === tests.length, makeMsg('_exit', 'Only finished ' + t + '/' + tests.length + ' tests'));
 });
