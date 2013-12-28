@@ -73,6 +73,30 @@ var tests = [
     expected: [],
     what: 'No fields and no files'
   },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'super alpha file',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      fileSize: 13,
+      fieldSize: 5
+    },
+    expected: [
+      ['field', 'file_name_0', 'super', true, false],
+      ['file', 'upload_file_0', 13, true, '1k_a.dat', '7bit', 'application/octet-stream']
+    ],
+    what: 'Fields and files (limits)'
+  },
 ];
 
 function next() {
