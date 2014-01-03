@@ -177,6 +177,23 @@ http.createServer(function(req, res) {
 // Done parsing form!
 ```
 
+* Aborting an upload:
+
+```javascript
+var http = require('http');
+var Busboy = require('busboy');
+
+http.createServer(function(req, res) {
+    var busboy = new Busboy({ headers: req.headers });
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+        // we must resume the stream otherwise backpressure could make the
+        // request hang.
+        file.resume();
+        res.statusCode = 400;
+        res.end("Aborted");
+    });
+});
+```
 
 API
 ===
