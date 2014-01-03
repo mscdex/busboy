@@ -190,7 +190,11 @@ Busboy (special) events
 
 * **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >valueTruncated, < _boolean_ >fieldnameTruncated) - Emitted for each new non-file field found.
 
-* **partsLimit**() - Emitted when specified `parts` limit has been hit. No more 'file' or 'field' events will be emitted.
+* **partsLimit**() - Emitted when specified `parts` limit has been reached. No more 'file' or 'field' events will be emitted.
+
+* **filesLimit**() - Emitted when specified `files` limit has been reached. No more 'file' events will be emitted.
+
+* **fieldsLimit**() - Emitted when specified `fields` limit has been reached. No more 'field' events will be emitted.
 
 
 **Note:** The `stream` passed in on the 'file' event will also emit a 'limit' event (no arguments) if the `fileSize` limit is reached. If this happens, no more data will be available on the stream.
