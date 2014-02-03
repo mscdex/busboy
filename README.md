@@ -72,51 +72,32 @@ http.createServer(function(req, res) {
 // Done parsing form!
 ```
 
-* Parsing `multipart/form-data` & saving files. Keep track of the point where the files are all properly saved to disk.
+* Save all incoming files to disk:
 
 ```javascript
+var http = require('http'),
+    os = require('os');
+
+var Busboy = require('busboy');
+
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
-    var infiles = 0, outfiles = 0, done = false,
-        busboy = new Busboy({ headers: req.headers });
-    console.log('Start parsing form ...');
+    var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      ++infiles;
-      onFile(fieldname, file, filename, function() {
-        ++outfiles;
-        if (done)
-          console.log(outfiles + '/' + infiles + ' parts written to disk');
-        if (done && infiles === outfiles) {
-          // ACTUAL EXIT CONDITION
-          console.log('All parts written to disk');
-          res.writeHead(200, { 'Connection': 'close' });
-          res.end("That's all folks!");
-        }
-      });
+      var saveTo = path.join(os.tmpDir(), path.basename(fieldname));
+      file.pipe(fs.createWriteStream(saveTo));
     });
     busboy.on('end', function() {
-      console.log('Done parsing form!');
-      done = true;
+      res.writeHead(200, { 'Connection': 'close' });
+      res.end('That's all folks!');
     });
-    req.pipe(busboy);
+    return req.pipe(busboy);
   }
+  res.writeHead(404);
+  res.end();
 }).listen(8000, function() {
   console.log('Listening for requests');
 });
-
-function onFile(fieldname, file, filename, next) {
-  // or save at some other location
-  var fstream = fs.createWriteStream(path.join(os.tmpDir(), path.basename(filename)));
-  file.on('end', function() {
-    console.log(fieldname + '(' + filename + ') EOF');
-  });
-  fstream.on('close', function() {
-    console.log(fieldname + '(' + filename + ') written to disk');
-    next();
-  });
-  console.log(fieldname + '(' + filename + ') start saving');
-  file.pipe(fstream);
-}
 ```
 
 * Parsing (urlencoded) with default options:
