@@ -1,7 +1,8 @@
 var parseParams = require('../lib/utils').parseParams;
 
 var path = require('path'),
-    assert = require('assert');
+    assert = require('assert'),
+    inspect = require('util').inspect;
 
 var group = path.basename(__filename, '.js') + '/';
 
@@ -46,8 +47,18 @@ var group = path.basename(__filename, '.js') + '/';
     expected: ['text/plain', ['filename', 'foobarbaz'], ['altfilename', '£ rates']],
     what: 'Mixed regular and extended parameters (RFC 5987) #2'
   },
+  { source: 'text/plain; filename="C:\\folder\\test.png"',
+    expected: ['text/plain', ['filename', 'C:\\folder\\test.png']],
+    what: 'Unescaped backslashes should be considered backslashes'
+  },
+  { source: 'text/plain; filename="John \\"Magic\\" Smith.png"',
+    expected: ['text/plain', ['filename', 'John "Magic" Smith.png']],
+    what: 'Escaped double-quotes should be considered double-quotes'
+  },
 ].forEach(function(v) {
   var result = parseParams(v.source),
-      msg = '[' + group + v.what + ']: parsed parameters mismatch';
+      msg = '[' + group + v.what + ']: parsed parameters mismatch.\n'
+            + 'Saw: ' + inspect(result) + '\n'
+            + 'Expected: ' + inspect(v.expected);
   assert.deepEqual(result, v.expected, msg);
 });
