@@ -120,7 +120,7 @@ function next() {
       results.push(['file', fieldname, nb, stream.truncated, filename, encoding, mimeType]);
     });
   });
-  busboy.on('end', function() {
+  busboy.on('finish', function() {
     assert.deepEqual(results.length,
                      v.expected.length,
                      makeMsg(v.what, 'Parsed result count mismatch. Saw '

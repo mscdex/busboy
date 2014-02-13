@@ -139,7 +139,7 @@ function next() {
   busboy.on('field', function(key, val, keyTrunc, valTrunc) {
     results.push([key, val, keyTrunc, valTrunc]);
   });
-  busboy.on('end', function() {
+  busboy.on('finish', function() {
     assert.deepEqual(results.length,
                      v.expected.length,
                      makeMsg(v.what, 'Parsed result count mismatch. Saw '
