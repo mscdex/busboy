@@ -113,15 +113,11 @@ function next() {
     results.push(['field', key, val, valTrunc, keyTrunc]);
   });
   busboy.on('file', function(fieldname, stream, filename, encoding, mimeType) {
-    var nb = 0, hitLimit = false;
+    var nb = 0;
     stream.on('data', function(d) {
       nb += d.length;
-    })
-    .on('limit', function() {
-      hitLimit = true;
-    })
-    .on('end', function() {
-      results.push(['file', fieldname, nb, hitLimit, filename, encoding, mimeType]);
+    }).on('end', function() {
+      results.push(['file', fieldname, nb, stream.truncated, filename, encoding, mimeType]);
     });
   });
   busboy.on('end', function() {
