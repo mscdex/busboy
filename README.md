@@ -42,7 +42,7 @@ http.createServer(function(req, res) {
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
-    busboy.on('end', function() {
+    busboy.on('finish', function() {
       console.log('Done parsing form!');
       res.writeHead(303, { Connection: 'close', Location: '/' });
       res.end();
@@ -87,7 +87,7 @@ http.createServer(function(req, res) {
       var saveTo = path.join(os.tmpDir(), path.basename(fieldname));
       file.pipe(fs.createWriteStream(saveTo));
     });
-    busboy.on('end', function() {
+    busboy.on('finish', function() {
       res.writeHead(200, { 'Connection': 'close' });
       res.end("That 's all folks!");
     });
@@ -123,7 +123,7 @@ http.createServer(function(req, res) {
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
-    busboy.on('end', function() {
+    busboy.on('finish', function() {
       console.log('Done parsing form!');
       res.writeHead(303, { Connection: 'close', Location: '/' });
       res.end();
@@ -167,18 +167,17 @@ _Busboy_ is a _Writable_ stream
 Busboy (special) events
 -----------------------
 
-* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream. `mimeType` contains the 'Content-Type' value for the file stream. Notice that when no file is attached to the field, (typeof filename === 'undefined'), the stream is 0-length but still requires draining to signal that the event was handled, otherwise the 'end' event will not fire. call stream.resume() to drain the stream.
+* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream. `mimeType` contains the 'Content-Type' value for the file stream.
+    * Note that you should always handle the `stream`, whether you care about the file data or not (e.g. you can simply just do `stream.resume();` if you don't care about the contents), otherwise the 'finish' event will never fire on the Busboy instance.
+    * `stream` also has a boolean property 'truncated', which indicates if the file stream was truncated because a configured file size limit was reached. It's probably best to check this value at the end of the stream.
 
-* **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >valueTruncated, < _boolean_ >fieldnameTruncated) - Emitted for each new non-file field found.
+* **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >fieldnameTruncated, < _boolean_ >valueTruncated) - Emitted for each new non-file field found.
 
 * **partsLimit**() - Emitted when specified `parts` limit has been reached. No more 'file' or 'field' events will be emitted.
 
 * **filesLimit**() - Emitted when specified `files` limit has been reached. No more 'file' events will be emitted.
 
 * **fieldsLimit**() - Emitted when specified `fields` limit has been reached. No more 'field' events will be emitted.
-
-
-**Note:** The `stream` passed in on the 'file' event will also emit a 'limit' event (no arguments) if the `fileSize` limit is reached. If this happens, no more data will be available on the stream.
 
 
 Busboy methods
