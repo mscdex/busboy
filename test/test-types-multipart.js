@@ -92,7 +92,7 @@ var tests = [
       fieldSize: 5
     },
     expected: [
-      ['field', 'file_name_0', 'super', true, false],
+      ['field', 'file_name_0', 'super', false, true],
       ['file', 'upload_file_0', 13, true, '1k_a.dat', '7bit', 'application/octet-stream']
     ],
     what: 'Fields and files (limits)'

@@ -82,14 +82,14 @@ var tests = [
     limits: { fieldNameSize: 3, fieldSize: 3 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['fo', 'bar', false, true],
-               ['ba', 'bla', false, true]],
+    expected: [['fo', 'bar', true, false],
+               ['ba', 'bla', true, false]],
     what: 'Limits: truncated field name',
     limits: { fieldNameSize: 2 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['foo', 'ba', true, false],
-               ['baz', 'bl', true, false]],
+    expected: [['foo', 'ba', false, true],
+               ['baz', 'bl', false, true]],
     what: 'Limits: truncated field value',
     limits: { fieldSize: 2 }
   },
@@ -136,8 +136,8 @@ function next() {
   var v = tests[t];
 
   var busboy = new EventEmitter(), ue, results = [];
-  busboy.on('field', function(key, val, valTrunc, keyTrunc) {
-    results.push([key, val, valTrunc, keyTrunc]);
+  busboy.on('field', function(key, val, keyTrunc, valTrunc) {
+    results.push([key, val, keyTrunc, valTrunc]);
   });
   busboy.on('end', function() {
     assert.deepEqual(results.length,
