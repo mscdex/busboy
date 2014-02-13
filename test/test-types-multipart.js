@@ -109,8 +109,8 @@ function next() {
       mp,
       results = [];
 
-  busboy.on('field', function(key, val, valTrunc, keyTrunc) {
-    results.push(['field', key, val, valTrunc, keyTrunc]);
+  busboy.on('field', function(key, val, keyTrunc, valTrunc) {
+    results.push(['field', key, val, keyTrunc, valTrunc]);
   });
   busboy.on('file', function(fieldname, stream, filename, encoding, mimeType) {
     var nb = 0;
