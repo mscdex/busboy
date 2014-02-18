@@ -1,8 +1,6 @@
-var UrlEncoded = require('../lib/types/urlencoded'),
-    parseParams = require('../lib/utils').parseParams;
+var Busboy = require('..');
 
 var path = require('path'),
-    EventEmitter = require('events').EventEmitter,
     inspect = require('util').inspect,
     assert = require('assert');
 
@@ -10,9 +8,6 @@ var EMPTY_FN = function() {};
 
 var t = 0,
     group = path.basename(__filename, '.js') + '/';
-
-var parsedConType;
-parsedConType = parseParams('application/x-www-form-urlencoded; charset=utf-8');
 
 var tests = [
   { source: ['foo'],
@@ -135,11 +130,23 @@ function next() {
 
   var v = tests[t];
 
-  var busboy = new EventEmitter(), ue, results = [];
+  var busboy = new Busboy({
+        limits: v.limits,
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded; charset=utf-8'
+        }
+      }),
+      finishes = 0,
+      results = [];
+
   busboy.on('field', function(key, val, keyTrunc, valTrunc) {
     results.push([key, val, keyTrunc, valTrunc]);
   });
+  busboy.on('file', function() {
+    throw new Error(makeMsg(v.what, 'Unexpected file'));
+  });
   busboy.on('finish', function() {
+    assert(finishes++ === 0, makeMsg(v.what, 'finish emitted multiple times'));
     assert.deepEqual(results.length,
                      v.expected.length,
                      makeMsg(v.what, 'Parsed result count mismatch. Saw '
@@ -160,17 +167,10 @@ function next() {
     next();
   });
 
-  var cfg = {
-    limits: v.limits,
-    headers: null,
-    parsedConType: parsedConType
-  };
-  ue = new UrlEncoded(busboy, cfg);
-
   v.source.forEach(function(s) {
-    ue.write(new Buffer(s, 'utf8'), EMPTY_FN);
+    busboy.write(new Buffer(s, 'utf8'), EMPTY_FN);
   });
-  ue.end();
+  busboy.end();
 }
 next();
 

@@ -1,8 +1,6 @@
-var Multipart = require('../lib/types/multipart'),
-    parseParams = require('../lib/utils').parseParams;
+var Busboy = require('..');
 
 var path = require('path'),
-    EventEmitter = require('events').EventEmitter,
     inspect = require('util').inspect,
     assert = require('assert');
 
@@ -105,8 +103,13 @@ function next() {
 
   var v = tests[t];
 
-  var busboy = new EventEmitter(),
-      mp,
+  var busboy = new Busboy({
+        limits: v.limits,
+        headers: {
+          'content-type': 'multipart/form-data; boundary=' + v.boundary
+        }
+      }),
+      finishes = 0,
       results = [];
 
   busboy.on('field', function(key, val, keyTrunc, valTrunc) {
@@ -121,6 +124,7 @@ function next() {
     });
   });
   busboy.on('finish', function() {
+    assert(finishes++ === 0, makeMsg(v.what, 'finish emitted multiple times'));
     assert.deepEqual(results.length,
                      v.expected.length,
                      makeMsg(v.what, 'Parsed result count mismatch. Saw '
@@ -138,17 +142,11 @@ function next() {
     ++t;
     next();
   });
-  var cfg = {
-    limits: v.limits,
-    headers: null,
-    parsedConType: parseParams('multipart/form-data; boundary=' + v.boundary)
-  };
-  mp = new Multipart(busboy, cfg);
 
   v.source.forEach(function(s) {
-    mp.write(new Buffer(s, 'utf8'), EMPTY_FN);
+    busboy.write(new Buffer(s, 'utf8'), EMPTY_FN);
   });
-  mp.end();
+  busboy.end();
 }
 next();
 
