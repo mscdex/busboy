@@ -195,13 +195,13 @@ Busboy methods
 
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
-        * **fieldNameSize** - _integer_ - Max field name size (Default: 100 bytes).
+        * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
 
-        * **fieldSize** - _integer_ - Max field value size (Default: 1MB).
+        * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
 
         * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
 
-        * **fileSize** - _integer_ - For multipart forms, the max file size (Default: Infinity).
+        * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes) (Default: Infinity).
 
         * **files** - _integer_ - For multipart forms, the max number of file fields (Default: Infinity).
 
