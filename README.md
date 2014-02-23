@@ -31,12 +31,12 @@ http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      console.log('File [' + fieldname +']: filename: ' + filename + ', encoding: ' + encoding);
+      console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding);
       file.on('data', function(data) {
-        console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
+        console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
       });
       file.on('end', function() {
-        console.log('File [' + fieldname +'] Finished');
+        console.log('File [' + fieldname + '] Finished');
       });
     });
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
@@ -112,12 +112,12 @@ http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      console.log('File [' + fieldname +']: filename: ' + filename);
+      console.log('File [' + fieldname + ']: filename: ' + filename);
       file.on('data', function(data) {
-        console.log('File [' + fieldname +'] got ' + data.length + ' bytes');
+        console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
       });
       file.on('end', function() {
-        console.log('File [' + fieldname +'] Finished');
+        console.log('File [' + fieldname + '] Finished');
       });
     });
     busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
@@ -168,7 +168,7 @@ Busboy (special) events
 -----------------------
 
 * **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream. `mimeType` contains the 'Content-Type' value for the file stream.
-    * Note that you should always handle the `stream`, whether you care about the file data or not (e.g. you can simply just do `stream.resume();` if you don't care about the contents), otherwise the 'finish' event will never fire on the Busboy instance.
+    * Note: if you listen for this event, you should always handle the `stream` no matter if you care about the file contents or not (e.g. you can simply just do `stream.resume();` if you want to discard the contents), otherwise the 'finish' event will never fire on the Busboy instance. However, if you don't care about **any** incoming files, you can simply not listen for the 'file' event at all and any/all files will be automatically and safely discarded (these discarded files do still count towards `files` and `parts` limits).
     * `stream` also has a boolean property 'truncated', which indicates if the file stream was truncated because a configured file size limit was reached. It's probably best to check this value at the end of the stream.
 
 * **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >fieldnameTruncated, < _boolean_ >valueTruncated) - Emitted for each new non-file field found.
