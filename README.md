@@ -76,6 +76,7 @@ http.createServer(function(req, res) {
 
 ```javascript
 var http = require('http'),
+    path = require('path'),
     os = require('os');
 
 var Busboy = require('busboy');
