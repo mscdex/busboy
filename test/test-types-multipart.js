@@ -125,6 +125,33 @@ var tests = [
     events: ['field'],
     what: 'Fields and (ignored) files'
   },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_0"; filename="/tmp/1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_1"; filename="C:\\files\\1k_b.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_2"; filename="relative/1k_c.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      ['file', 'upload_file_0', 26, false, '1k_a.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_1', 26, false, '1k_b.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_2', 26, false, '1k_c.dat', '7bit', 'application/octet-stream']
+    ],
+    what: 'Files with filenames containing paths'
+  },
 ];
 
 function next() {
