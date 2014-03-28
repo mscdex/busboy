@@ -1,6 +1,6 @@
 /*
    Modifications for better node.js integration:
-    Copyright 2013 Brian White. All rights reserved.
+    Copyright 2014 Brian White. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to
@@ -22,7 +22,7 @@
 */
 /*
    Original source code:
-    Copyright 2012 Joshua Bell
+    Copyright 2014 Joshua Bell
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -85,7 +85,10 @@ function ByteInputStream(bytes) {
   /** @type {number} */
   var pos = 0;
 
-  /** @return {number} Get the next byte from the stream. */
+  /**
+   * @this {ByteInputStream}
+   * @return {number} Get the next byte from the stream.
+   */
   this.get = function() {
     return (pos >= bytes.length) ? EOF_byte : Number(bytes[pos]);
   };
@@ -261,6 +264,7 @@ function decoderError(fatal, opt_code_point) {
 
 /**
  * @param {number} code_point The code point that could not be encoded.
+ * @return {number} Always throws, no value is actually returned.
  */
 function encoderError(code_point) {
   throw new EncodingError('The code point ' + code_point +
@@ -719,9 +723,9 @@ var encodings = [
       {
         "labels": [
           "csiso2022kr",
-          "iso-2022-kr",
           "iso-2022-cn",
-          "iso-2022-cn-ext"
+            "iso-2022-cn-ext",
+            "iso-2022-kr"
         ],
         "name": "replacement"
       },
@@ -766,12 +770,13 @@ encodings.forEach(function(category) {
 
 /**
  * @param {number} pointer The |pointer| to search for.
- * @param {Array.<?number>} index The |index| to search within.
+ * @param {Array.<?number>|undefined} index The |index| to search within.
  * @return {?number} The code point corresponding to |pointer| in |index|,
  *     or null if |code point| is not in |index|.
  */
 function indexCodePointFor(pointer, index) {
-  return (index || [])[pointer] || null;
+    if (!index) return null;
+    return index[pointer] || null;
 }
 
 /**
@@ -799,10 +804,10 @@ function indexGB18030CodePointFor(pointer) {
   }
   var /** @type {number} */ offset = 0,
       /** @type {number} */ code_point_offset = 0,
-      /** @type {Array.<Array.<number>>} */ index = indexes['gb18030'];
+      /** @type {Array.<Array.<number>>} */ idx = indexes['gb18030'];
   var i;
-  for (i = 0; i < index.length; ++i) {
-    var entry = index[i];
+  for (i = 0; i < idx.length; ++i) {
+    var entry = idx[i];
     if (entry[0] <= pointer) {
       offset = entry[0];
       code_point_offset = entry[1];
@@ -821,10 +826,10 @@ function indexGB18030CodePointFor(pointer) {
 function indexGB18030PointerFor(code_point) {
   var /** @type {number} */ offset = 0,
       /** @type {number} */ pointer_offset = 0,
-      /** @type {Array.<Array.<number>>} */ index = indexes['gb18030'];
+      /** @type {Array.<Array.<number>>} */ idx = indexes['gb18030'];
   var i;
-  for (i = 0; i < index.length; ++i) {
-    var entry = index[i];
+  for (i = 0; i < idx.length; ++i) {
+    var entry = idx[i];
     if (entry[1] <= code_point) {
       offset = entry[1];
       pointer_offset = entry[0];
@@ -835,11 +840,184 @@ function indexGB18030PointerFor(code_point) {
   return pointer_offset + code_point - offset;
 }
 
+
 //
-// 7. The encoding
+// 7. API
 //
 
-// 7.1 utf-8
+/** @const */ var DEFAULT_ENCODING = 'utf-8';
+
+// 7.1 Interface TextDecoder
+
+/**
+ * @constructor
+ * @param {string=} opt_encoding The label of the encoding;
+ *     defaults to 'utf-8'.
+ * @param {{fatal: boolean}=} options
+ */
+function TextDecoder(opt_encoding, options) {
+  if (!(this instanceof TextDecoder)) {
+    return new TextDecoder(opt_encoding, options);
+  }
+  opt_encoding = opt_encoding ? String(opt_encoding) : DEFAULT_ENCODING;
+  options = Object(options);
+  /** @private */
+  this._encoding = getEncoding(opt_encoding);
+  if (this._encoding === null || this._encoding.name === 'replacement')
+    throw new TypeError('Unknown encoding: ' + opt_encoding);
+
+  /** @private @type {boolean} */
+  this._streaming = false;
+  /** @private @type {boolean} */
+  this._BOMseen = false;
+  /** @private */
+  this._decoder = null;
+  /** @private @type {{fatal: boolean}=} */
+  this._options = { fatal: Boolean(options.fatal) };
+
+  if (Object.defineProperty) {
+    Object.defineProperty(
+        this, 'encoding',
+        { get: function() { return this._encoding.name; } });
+  } else {
+    this.encoding = this._encoding.name;
+  }
+
+  return this;
+}
+
+// TODO: Issue if input byte stream is offset by decoder
+// TODO: BOM detection will not work if stream header spans multiple calls
+// (last N bytes of previous stream may need to be retained?)
+TextDecoder.prototype = {
+  /**
+   * @param {Buffer=} bytes The buffer of bytes to decode.
+   * @param {{stream: boolean}=} options
+   */
+  decode: function decode(bytes, options) {
+    options = Object(options);
+
+    if (!this._streaming) {
+      this._decoder = this._encoding.getDecoder(this._options);
+      this._BOMseen = false;
+    }
+    this._streaming = Boolean(options.stream);
+
+    var input_stream = new ByteInputStream(bytes);
+
+    var output_stream = new CodePointOutputStream();
+
+    /** @type {number} */
+    var code_point;
+
+    while (input_stream.get() !== EOF_byte) {
+      code_point = this._decoder.decode(input_stream);
+      if (code_point !== null && code_point !== EOF_code_point) {
+        output_stream.emit(code_point);
+      }
+    }
+    if (!this._streaming) {
+      do {
+        code_point = this._decoder.decode(input_stream);
+        if (code_point !== null && code_point !== EOF_code_point) {
+          output_stream.emit(code_point);
+        }
+      } while (code_point !== EOF_code_point &&
+               input_stream.get() != EOF_byte);
+      this._decoder = null;
+    }
+
+    var result = output_stream.string();
+    if (!this._BOMseen && result.length) {
+      this._BOMseen = true;
+      if (UTFs.indexOf(this.encoding) !== -1 &&
+         result.charCodeAt(0) === 0xFEFF) {
+        result = result.substring(1);
+      }
+    }
+
+    return result;
+  }
+};
+
+var UTFs = ['utf-8', 'utf-16le', 'utf-16be'];
+
+// 7.2 Interface TextEncoder
+
+/**
+ * @constructor
+ * @param {string=} opt_encoding The label of the encoding;
+ *     defaults to 'utf-8'.
+ * @param {{fatal: boolean}=} options
+ */
+function TextEncoder(opt_encoding, options) {
+  if (!(this instanceof TextEncoder)) {
+    return new TextEncoder(opt_encoding, options);
+  }
+  opt_encoding = opt_encoding ? String(opt_encoding) : DEFAULT_ENCODING;
+  options = Object(options);
+  /** @private */
+  this._encoding = getEncoding(opt_encoding);
+  if (this._encoding === null || (this._encoding.name !== 'utf-8' &&
+                                  this._encoding.name !== 'utf-16le' &&
+                                  this._encoding.name !== 'utf-16be'))
+    throw new TypeError('Unknown encoding: ' + opt_encoding);
+  /** @private @type {boolean} */
+  this._streaming = false;
+  /** @private */
+  this._encoder = null;
+  /** @private @type {{fatal: boolean}=} */
+  this._options = { fatal: Boolean(options.fatal) };
+
+  if (Object.defineProperty) {
+    Object.defineProperty(
+        this, 'encoding',
+        { get: function() { return this._encoding.name; } });
+  } else {
+    this.encoding = this._encoding.name;
+  }
+
+  return this;
+}
+
+TextEncoder.prototype = {
+  /**
+   * @param {string=} opt_string The string to encode.
+   * @param {{stream: boolean}=} options
+   */
+  encode: function encode(opt_string, options) {
+    opt_string = opt_string ? String(opt_string) : '';
+    options = Object(options);
+    // TODO: any options?
+    if (!this._streaming) {
+      this._encoder = this._encoding.getEncoder(this._options);
+    }
+    this._streaming = Boolean(options.stream);
+
+    var bytes = [];
+    var output_stream = new ByteOutputStream(bytes);
+    var input_stream = new CodePointInputStream(opt_string);
+    while (input_stream.get() !== EOF_code_point) {
+      this._encoder.encode(output_stream, input_stream);
+    }
+    if (!this._streaming) {
+      /** @type {number} */
+      var last_byte;
+      do {
+        last_byte = this._encoder.encode(output_stream, input_stream);
+      } while (last_byte !== EOF_byte);
+      this._encoder = null;
+    }
+    return new Buffer(bytes);
+  }
+};
+
+
+//
+// 8. The encoding
+//
+
+// 8.1 utf-8
 
 /**
  * @constructor
@@ -929,6 +1107,7 @@ function UTF8Encoder(options) {
    * @return {number} The last byte emitted.
    */
   this.encode = function(output_byte_stream, code_point_pointer) {
+    /** @type {number} */
     var code_point = code_point_pointer.get();
     if (code_point === EOF_code_point) {
       return EOF_byte;
@@ -962,15 +1141,17 @@ function UTF8Encoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['utf-8'].getEncoder = function(options) {
   return new UTF8Encoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['utf-8'].getDecoder = function(options) {
   return new UTF8Decoder(options);
 };
 
 //
-// 8. Legacy single-byte encodings
+// 9. Legacy single-byte encodings
 //
 
 /**
@@ -1036,19 +1217,21 @@ function SingleByteEncoder(index, options) {
     if (category.heading !== 'Legacy single-byte encodings')
       return;
     category.encodings.forEach(function(encoding) {
-      var index = indexes[encoding.name];
+      var idx = indexes[encoding.name];
+      /** @param {{fatal: boolean}} options */
       encoding.getDecoder = function(options) {
-        return new SingleByteDecoder(index, options);
+        return new SingleByteDecoder(idx, options);
       };
+      /** @param {{fatal: boolean}} options */
       encoding.getEncoder = function(options) {
-        return new SingleByteEncoder(index, options);
+        return new SingleByteEncoder(idx, options);
       };
     });
   });
 }());
 
 //
-// 9. Legacy multi-byte Chinese (simplified) encodings
+// 10. Legacy multi-byte Chinese (simplified) encodings
 //
 
 // 9.1 gbk
@@ -1205,7 +1388,7 @@ name_to_encoding['gb18030'].getDecoder = function(options) {
   return new GBKDecoder(true, options);
 };
 
-// 9.3 hz-gb-2312
+// 10.2 hz-gb-2312
 
 /**
  * @constructor
@@ -1292,6 +1475,7 @@ function HZGB2312Decoder(options) {
  */
 function HZGB2312Encoder(options) {
   var fatal = options.fatal;
+  /** @type {boolean} */
   var hzgb2312 = false;
   /**
    * @param {ByteOutputStream} output_byte_stream Output byte stream.
@@ -1333,18 +1517,20 @@ function HZGB2312Encoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['hz-gb-2312'].getEncoder = function(options) {
   return new HZGB2312Encoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['hz-gb-2312'].getDecoder = function(options) {
   return new HZGB2312Decoder(options);
 };
 
 //
-// 10. Legacy multi-byte Chinese (traditional) encodings
+// 11. Legacy multi-byte Chinese (traditional) encodings
 //
 
-// 10.1 big5
+// 11.1 big5
 
 /**
  * @constructor
@@ -1455,19 +1641,21 @@ function Big5Encoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['big5'].getEncoder = function(options) {
   return new Big5Encoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['big5'].getDecoder = function(options) {
   return new Big5Decoder(options);
 };
 
 
 //
-// 11. Legacy multi-byte Japanese encodings
+// 12. Legacy multi-byte Japanese encodings
 //
 
-// 11.1 euc.jp
+// 12.1 euc.jp
 
 /**
  * @constructor
@@ -1587,14 +1775,16 @@ function EUCJPEncoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['euc-jp'].getEncoder = function(options) {
   return new EUCJPEncoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['euc-jp'].getDecoder = function(options) {
   return new EUCJPDecoder(options);
 };
 
-// 11.2 iso-2022-jp
+// 12.2 iso-2022-jp
 
 /**
  * @constructor
@@ -1808,14 +1998,16 @@ function ISO2022JPEncoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['iso-2022-jp'].getEncoder = function(options) {
   return new ISO2022JPEncoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['iso-2022-jp'].getDecoder = function(options) {
   return new ISO2022JPDecoder(options);
 };
 
-// 11.3 shift_jis
+// 12.3 shift_jis
 
 /**
  * @constructor
@@ -1910,18 +2102,20 @@ function ShiftJISEncoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['shift_jis'].getEncoder = function(options) {
   return new ShiftJISEncoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['shift_jis'].getDecoder = function(options) {
   return new ShiftJISDecoder(options);
 };
 
 //
-// 12. Legacy multi-byte Korean encodings
+// 13. Legacy multi-byte Korean encodings
 //
 
-// 12.1 euc-kr
+// 13.1 euc-kr
 
 /**
  * @constructor
@@ -2028,19 +2222,25 @@ function EUCKREncoder(options) {
   };
 }
 
+/** @param {{fatal: boolean}} options */
 name_to_encoding['euc-kr'].getEncoder = function(options) {
   return new EUCKREncoder(options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['euc-kr'].getDecoder = function(options) {
   return new EUCKRDecoder(options);
 };
 
 
 //
-// 13. Legacy utf-16 encodings
+// 14. Legacy miscellaneous encodings
 //
 
-// 13.1 utf-16
+// 14.1 replacement
+
+// Not needed - API throws TypeError
+
+// 14.2 utf-16
 
 /**
  * @constructor
@@ -2112,6 +2312,10 @@ function UTF16Encoder(utf16_be, options) {
    * @return {number} The last byte emitted.
    */
   this.encode = function(output_byte_stream, code_point_pointer) {
+    /**
+     * @param {number} code_unit
+     * @return {number} last byte emitted
+     */
     function convert_to_bytes(code_unit) {
       var byte1 = code_unit >> 8;
       var byte2 = code_unit & 0x00FF;
@@ -2138,21 +2342,28 @@ function UTF16Encoder(utf16_be, options) {
   };
 }
 
-name_to_encoding['utf-16le'].getEncoder = function(options) {
-  return new UTF16Encoder(false, options);
-};
-name_to_encoding['utf-16le'].getDecoder = function(options) {
-  return new UTF16Decoder(false, options);
-};
-
-// 13.2 utf-16be
+// 14.3 utf-16be
+/** @param {{fatal: boolean}} options */
 name_to_encoding['utf-16be'].getEncoder = function(options) {
   return new UTF16Encoder(true, options);
 };
+/** @param {{fatal: boolean}} options */
 name_to_encoding['utf-16be'].getDecoder = function(options) {
   return new UTF16Decoder(true, options);
 };
 
+// 14.4 utf-16le
+/** @param {{fatal: boolean}} options */
+name_to_encoding['utf-16le'].getEncoder = function(options) {
+  return new UTF16Encoder(false, options);
+};
+/** @param {{fatal: boolean}} options */
+name_to_encoding['utf-16le'].getDecoder = function(options) {
+  return new UTF16Decoder(false, options);
+};
+
+// 14.5 x-user-defined
+// TODO: Implement this encoding.
 
 // NOTE: currently unused
 /**
@@ -2175,166 +2386,6 @@ function detectEncoding(label, input_stream) {
   return label;
 }
 
-//
-// Implementation of Text Encoding Web API
-//
-
-/** @const */ var DEFAULT_ENCODING = 'utf-8';
-
-/**
- * @constructor
- * @param {string=} opt_encoding The label of the encoding;
- *     defaults to 'utf-8'.
- * @param {{fatal: boolean}=} options
- */
-function TextEncoder(opt_encoding, options) {
-  if (!(this instanceof TextEncoder)) {
-    return new TextEncoder(opt_encoding, options);
-  }
-  opt_encoding = opt_encoding ? String(opt_encoding) : DEFAULT_ENCODING;
-  options = Object(options);
-  /** @private */
-  this._encoding = getEncoding(opt_encoding);
-  if (this._encoding === null || (this._encoding.name !== 'utf-8' &&
-                                  this._encoding.name !== 'utf-16le' &&
-                                  this._encoding.name !== 'utf-16be'))
-    throw new TypeError('Unknown encoding: ' + opt_encoding);
-  /** @private @type {boolean} */
-  this._streaming = false;
-  /** @private */
-  this._encoder = null;
-  /** @private @type {{fatal: boolean}=} */
-  this._options = { fatal: Boolean(options.fatal) };
-
-  if (Object.defineProperty) {
-    Object.defineProperty(
-        this, 'encoding',
-        { get: function() { return this._encoding.name; } });
-  } else {
-    this.encoding = this._encoding.name;
-  }
-
-  return this;
-}
-
-TextEncoder.prototype = {
-  /**
-   * @param {string=} opt_string The string to encode.
-   * @param {{stream: boolean}=} options
-   */
-  encode: function encode(opt_string, options) {
-    opt_string = opt_string ? String(opt_string) : '';
-    options = Object(options);
-    // TODO: any options?
-    if (!this._streaming) {
-      this._encoder = this._encoding.getEncoder(this._options);
-    }
-    this._streaming = Boolean(options.stream);
-
-    var bytes = [];
-    var output_stream = new ByteOutputStream(bytes);
-    var input_stream = new CodePointInputStream(opt_string);
-    while (input_stream.get() !== EOF_code_point) {
-      this._encoder.encode(output_stream, input_stream);
-    }
-    if (!this._streaming) {
-      var last_byte;
-      do {
-        last_byte = this._encoder.encode(output_stream, input_stream);
-      } while (last_byte !== EOF_byte);
-      this._encoder = null;
-    }
-    return new Buffer(bytes);
-  }
-};
-
-
-/**
- * @constructor
- * @param {string=} opt_encoding The label of the encoding;
- *     defaults to 'utf-8'.
- * @param {{fatal: boolean}=} options
- */
-function TextDecoder(opt_encoding, options) {
-  if (!(this instanceof TextDecoder)) {
-    return new TextDecoder(opt_encoding, options);
-  }
-  opt_encoding = opt_encoding ? String(opt_encoding) : DEFAULT_ENCODING;
-  options = Object(options);
-  /** @private */
-  this._encoding = getEncoding(opt_encoding);
-  if (this._encoding === null)
-    throw new TypeError('Unknown encoding: ' + opt_encoding);
-
-  /** @private @type {boolean} */
-  this._streaming = false;
-  /** @private */
-  this._decoder = null;
-  /** @private @type {{fatal: boolean}=} */
-  this._options = { fatal: Boolean(options.fatal) };
-
-  if (Object.defineProperty) {
-    Object.defineProperty(
-        this, 'encoding',
-        { get: function() { return this._encoding.name; } });
-  } else {
-    this.encoding = this._encoding.name;
-  }
-
-  return this;
-}
-
-// TODO: Issue if input byte stream is offset by decoder
-// TODO: BOM detection will not work if stream header spans multiple calls
-// (last N bytes of previous stream may need to be retained?)
-TextDecoder.prototype = {
-  /**
-   * @param {Buffer=} buf The buffer of bytes to decode.
-   * @param {{stream: boolean}=} options
-   */
-  decode: function decode(buf, options) {
-    options = Object(options);
-
-    if (!this._streaming) {
-      this._decoder = this._encoding.getDecoder(this._options);
-      this._BOMseen = false;
-    }
-    this._streaming = Boolean(options.stream);
-
-    var input_stream = new ByteInputStream(buf);
-
-    var output_stream = new CodePointOutputStream(), code_point;
-    while (input_stream.get() !== EOF_byte) {
-      code_point = this._decoder.decode(input_stream);
-      if (code_point !== null && code_point !== EOF_code_point) {
-        output_stream.emit(code_point);
-      }
-    }
-    if (!this._streaming) {
-      do {
-        code_point = this._decoder.decode(input_stream);
-        if (code_point !== null && code_point !== EOF_code_point) {
-          output_stream.emit(code_point);
-        }
-      } while (code_point !== EOF_code_point &&
-               input_stream.get() != EOF_byte);
-      this._decoder = null;
-    }
-
-    var result = output_stream.string();
-    if (!this._BOMseen && result.length) {
-      this._BOMseen = true;
-      if (UTFs.indexOf(this.encoding) !== -1 &&
-         result.charCodeAt(0) === 0xFEFF) {
-        result = result.substring(1);
-      }
-    }
-
-    return result;
-  }
-};
-
-var UTFs = ['utf-8', 'utf-16le', 'utf-16be'];
 exports.TextEncoder = TextEncoder;
 exports.TextDecoder = TextDecoder;
 exports.encodingExists = getEncoding;
