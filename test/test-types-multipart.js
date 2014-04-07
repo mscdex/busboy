@@ -152,6 +152,25 @@ var tests = [
     ],
     what: 'Files with filenames containing paths'
   },
+  { source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="cont"',
+       'Content-Type: ',
+       '',
+       'some random content',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: ',
+       '',
+       'some random pass',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
+      ].join('\r\n')
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      ['field', 'cont', 'some random content', false, false]
+    ],
+    what: 'Empty content-type and empty content-disposition'
+  },
 ];
 
 function next() {
