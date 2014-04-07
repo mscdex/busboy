@@ -55,6 +55,10 @@ var group = path.basename(__filename, '.js') + '/';
     expected: ['text/plain', ['filename', 'John "Magic" Smith.png']],
     what: 'Escaped double-quotes should be considered double-quotes'
   },
+  { source: 'multipart/form-data; charset=utf-8; boundary=0xKhTmLbOuNdArY',
+    expected: ['multipart/form-data', ['charset', 'utf-8'], ['boundary', '0xKhTmLbOuNdArY']],
+    what: 'Multiple non-quoted parameters'
+  },
 ].forEach(function(v) {
   var result = parseParams(v.source),
       msg = '[' + group + v.what + ']: parsed parameters mismatch.\n'
