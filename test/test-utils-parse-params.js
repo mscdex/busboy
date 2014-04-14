@@ -11,6 +11,10 @@ var group = path.basename(__filename, '.js') + '/';
     expected: ['text/plain', ['encoding', 'utf8']],
     what: 'Unquoted'
   },
+  { source: 'text/plain; encoding=',
+    expected: ['text/plain', ['encoding', '']],
+    what: 'Unquoted empty string'
+  },
   { source: 'text/plain; encoding="utf8"',
     expected: ['text/plain', ['encoding', 'utf8']],
     what: 'Quoted'
@@ -18,6 +22,10 @@ var group = path.basename(__filename, '.js') + '/';
   { source: 'text/plain; greeting="hello \\"world\\""',
     expected: ['text/plain', ['greeting', 'hello "world"']],
     what: 'Quotes within quoted'
+  },
+  { source: 'text/plain; encoding=""',
+    expected: ['text/plain', ['encoding', '']],
+    what: 'Quoted empty string'
   },
   { source: 'text/plain; encoding="utf8";\t   foo=bar;test',
     expected: ['text/plain', ['encoding', 'utf8'], ['foo', 'bar'], 'test'],
