@@ -39,7 +39,7 @@ http.createServer(function(req, res) {
         console.log('File [' + fieldname + '] Finished');
       });
     });
-    busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
+    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
     busboy.on('finish', function() {
@@ -121,7 +121,7 @@ http.createServer(function(req, res) {
         console.log('File [' + fieldname + '] Finished');
       });
     });
-    busboy.on('field', function(fieldname, val, valTruncated, keyTruncated) {
+    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
       console.log('Field [' + fieldname + ']: value: ' + inspect(val));
     });
     busboy.on('finish', function() {
