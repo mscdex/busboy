@@ -11,7 +11,7 @@ var t = 0,
 
 var tests = [
   { source: ['foo'],
-    expected: [['foo', undefined, false, false]],
+    expected: [['foo', '', false, false]],
     what: 'Unassigned value'
   },
   { source: ['foo=bar'],
@@ -19,13 +19,13 @@ var tests = [
     what: 'Assigned value'
   },
   { source: ['foo&bar=baz'],
-    expected: [['foo', undefined, false, false],
+    expected: [['foo', '', false, false],
                ['bar', 'baz', false, false]],
     what: 'Unassigned and assigned value'
   },
   { source: ['foo=bar&baz'],
     expected: [['foo', 'bar', false, false],
-               ['baz', undefined, false, false]],
+               ['baz', '', false, false]],
     what: 'Assigned and unassigned value'
   },
   { source: ['foo=bar&baz=bla'],
@@ -34,13 +34,13 @@ var tests = [
     what: 'Two assigned values'
   },
   { source: ['foo&bar'],
-    expected: [['foo', undefined, false, false],
-               ['bar', undefined, false, false]],
+    expected: [['foo', '', false, false],
+               ['bar', '', false, false]],
     what: 'Two unassigned values'
   },
   { source: ['foo&bar&'],
-    expected: [['foo', undefined, false, false],
-               ['bar', undefined, false, false]],
+    expected: [['foo', '', false, false],
+               ['bar', '', false, false]],
     what: 'Two unassigned values and ampersand'
   },
   { source: ['foo=bar+baz%2Bquux'],
@@ -95,14 +95,14 @@ var tests = [
     limits: { fieldNameSize: 2, fieldSize: 2 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['fo', undefined, true, true],
-               ['ba', undefined, true, true]],
+    expected: [['fo', '', true, true],
+               ['ba', '', true, true]],
     what: 'Limits: truncated field name and zero value limit',
     limits: { fieldNameSize: 2, fieldSize: 0 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['', undefined, true, true],
-               ['', undefined, true, true]],
+    expected: [['', '', true, true],
+               ['', '', true, true]],
     what: 'Limits: truncated zero field name and zero value limit',
     limits: { fieldNameSize: 0, fieldSize: 0 }
   },
@@ -115,7 +115,7 @@ var tests = [
     what: 'Many ampersands'
   },
   { source: ['='],
-    expected: [['', undefined, false, false]],
+    expected: [['', '', false, false]],
     what: 'Assigned value, empty name and value'
   },
   { source: [''],
