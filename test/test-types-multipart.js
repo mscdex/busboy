@@ -195,11 +195,20 @@ function next() {
   }
   if (v.events === undefined || v.events.indexOf('file') > -1) {
     busboy.on('file', function(fieldname, stream, filename, encoding, mimeType) {
-      var nb = 0;
+      var nb = 0,
+          info = ['file',
+                  fieldname,
+                  nb,
+                  stream.truncated,
+                  filename,
+                  encoding,
+                  mimeType];
+      results.push(info);
       stream.on('data', function(d) {
         nb += d.length;
       }).on('end', function() {
-        results.push(['file', fieldname, nb, stream.truncated, filename, encoding, mimeType]);
+        info[2] = nb;
+        info[3] = stream.truncated;
       });
     });
   }
