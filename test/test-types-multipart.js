@@ -35,8 +35,8 @@ var tests = [
     expected: [
       ['field', 'file_name_0', 'super alpha file', false, false],
       ['field', 'file_name_1', 'super beta file', false, false],
-      ['file', 'upload_file_0', 1023, false, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 1023, false, '1k_b.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
     ],
     what: 'Fields and files'
   },
@@ -91,7 +91,7 @@ var tests = [
     },
     expected: [
       ['field', 'file_name_0', 'super', false, true],
-      ['file', 'upload_file_0', 13, true, '1k_a.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream']
     ],
     what: 'Fields and files (limits)'
   },
@@ -146,9 +146,9 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['file', 'upload_file_0', 26, false, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, false, '1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, false, '1k_c.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream']
     ],
     what: 'Files with filenames containing paths'
   },
@@ -199,16 +199,19 @@ function next() {
           info = ['file',
                   fieldname,
                   nb,
-                  stream.truncated,
+                  0,
                   filename,
                   encoding,
                   mimeType];
       results.push(info);
       stream.on('data', function(d) {
         nb += d.length;
+      }).on('limit', function() {
+        ++info[3];
       }).on('end', function() {
         info[2] = nb;
-        info[3] = stream.truncated;
+        if (stream.truncated)
+          ++info[3];
       });
     });
   }
