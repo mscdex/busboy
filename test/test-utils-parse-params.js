@@ -7,6 +7,22 @@ var path = require('path'),
 var group = path.basename(__filename, '.js') + '/';
 
 [
+  { source: 'video/ogg',
+    expected: ['video/ogg'],
+    what: 'No parameters'
+  },
+  { source: 'video/ogg;',
+    expected: ['video/ogg'],
+    what: 'No parameters (with separator)'
+  },
+  { source: 'video/ogg; ',
+    expected: ['video/ogg'],
+    what: 'No parameters (with separator followed by whitespace)'
+  },
+  { source: ';video/ogg',
+    expected: ['', 'video/ogg'],
+    what: 'Empty parameter'
+  },
   { source: 'text/plain; encoding=utf8',
     expected: ['text/plain', ['encoding', 'utf8']],
     what: 'Unquoted'
