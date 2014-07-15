@@ -23,6 +23,10 @@ var group = path.basename(__filename, '.js') + '/';
     expected: ['', 'video/ogg'],
     what: 'Empty parameter'
   },
+  { source: 'video/*',
+    expected: ['video/*'],
+    what: 'Subtype with asterisk'
+  },
   { source: 'text/plain; encoding=utf8',
     expected: ['text/plain', ['encoding', 'utf8']],
     what: 'Unquoted'
