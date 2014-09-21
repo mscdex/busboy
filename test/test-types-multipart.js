@@ -101,6 +101,28 @@ var tests = [
        '',
        'super alpha file',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      files: 0
+    },
+    expected: [
+      ['field', 'file_name_0', 'super alpha file', false, false]
+    ],
+    what: 'Fields and files (limits: 0 files)'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'super alpha file',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
        'Content-Disposition: form-data; name="file_name_1"',
        '',
        'super beta file',
