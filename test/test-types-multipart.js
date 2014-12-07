@@ -193,6 +193,20 @@ var tests = [
     ],
     what: 'Empty content-type and empty content-disposition'
   },
+  { source: [
+      ['--asdasdasdasd\r\n',
+       'Content-Type: text/plain\r\n',
+       'Content-Disposition: form-data; name="foo"\r\n',
+       '\r\n',
+       'asd\r\n',
+       '--asdasdasdasd--'
+      ].join(':)')
+    ],
+    boundary: 'asdasdasdasd',
+    expected: [],
+    shouldError: 'Unexpected end of multipart data',
+    what: 'Stopped mid-header'
+  },
 ];
 
 function next() {
@@ -255,6 +269,9 @@ function next() {
     });
     ++t;
     next();
+  }).on('error', function(err) {
+    if (!v.shouldError || v.shouldError !== err.message)
+      assert(false, makeMsg(v.what, 'Unexpected error: ' + err));
   });
 
   v.source.forEach(function(s) {
