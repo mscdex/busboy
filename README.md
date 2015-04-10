@@ -80,7 +80,7 @@ http.createServer(function(req, res) {
 ```javascript
 var http = require('http'),
     path = require('path'),
-    os = require('os');
+    os = require('os'),
     fs = require('fs');
 
 var Busboy = require('busboy');
