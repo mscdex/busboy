@@ -197,6 +197,8 @@ Busboy methods
 
     * **defCharset** - _string_ - Default character set to use when one isn't defined (Default: 'utf8').
 
+    * **preservePath** - _boolean_ - If paths in the multipart 'filename' field shall be preserved. (Default: false).
+
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
         * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
