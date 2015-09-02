@@ -175,6 +175,34 @@ var tests = [
     what: 'Files with filenames containing paths'
   },
   { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_0"; filename="/absolute/1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_1"; filename="C:\\absolute\\1k_b.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="upload_file_2"; filename="relative/1k_c.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    preservePath: true,
+    expected: [
+      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream'],
+      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream']
+    ],
+    what: 'Paths to be preserved through the preservePath option'
+  },
+  { source: [
       ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
        'Content-Disposition: form-data; name="cont"',
        'Content-Type: ',
@@ -217,6 +245,7 @@ function next() {
 
   var busboy = new Busboy({
         limits: v.limits,
+        preservePath: v.preservePath,
         headers: {
           'content-type': 'multipart/form-data; boundary=' + v.boundary
         }
