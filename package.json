@@ -4,7 +4,7 @@
   "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/main",
   "dependencies": {
-    "dicer": "0.2.3",
+    "dicer": "0.2.4",
     "readable-stream": "1.1.x"
   },
   "scripts": {
