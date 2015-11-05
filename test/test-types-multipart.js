@@ -33,8 +33,8 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false],
-      ['field', 'file_name_1', 'super beta file', false, false],
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
+      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
       ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
       ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
     ],
@@ -58,9 +58,9 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false],
-      ['field', 'pass', 'some random pass', false, false],
-      ['field', 'bit', '2', false, false]
+      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain'],
+      ['field', 'pass', 'some random pass', false, false, '7bit', 'text/plain'],
+      ['field', 'bit', '2', false, false, '7bit', 'text/plain']
     ],
     what: 'Fields only'
   },
@@ -90,7 +90,7 @@ var tests = [
       fieldSize: 5
     },
     expected: [
-      ['field', 'file_name_0', 'super', false, true],
+      ['field', 'file_name_0', 'super', false, true, '7bit', 'text/plain'],
       ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream']
     ],
     what: 'Fields and files (limits)'
@@ -113,7 +113,7 @@ var tests = [
       files: 0
     },
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false]
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain']
     ],
     what: 'Fields and files (limits: 0 files)'
   },
@@ -141,8 +141,8 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false],
-      ['field', 'file_name_1', 'super beta file', false, false],
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
+      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
     ],
     events: ['field'],
     what: 'Fields and (ignored) files'
@@ -217,7 +217,7 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false]
+      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain']
     ],
     what: 'Empty content-type and empty content-disposition'
   },
@@ -235,6 +235,21 @@ var tests = [
     shouldError: 'Unexpected end of multipart data',
     what: 'Stopped mid-header'
   },
+  { source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="cont"',
+       'Content-Type: application/json',
+       '',
+       '{}',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--',
+      ].join('\r\n')
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      ['field', 'cont', '{}', false, false, '7bit', 'application/json']
+    ],
+    what: 'content-type for fields'
+  }
 ];
 
 function next() {
@@ -254,8 +269,8 @@ function next() {
       results = [];
 
   if (v.events === undefined || v.events.indexOf('field') > -1) {
-    busboy.on('field', function(key, val, keyTrunc, valTrunc) {
-      results.push(['field', key, val, keyTrunc, valTrunc]);
+    busboy.on('field', function(key, val, keyTrunc, valTrunc, encoding, contype) {
+      results.push(['field', key, val, keyTrunc, valTrunc, encoding, contype]);
     });
   }
   if (v.events === undefined || v.events.indexOf('file') > -1) {
