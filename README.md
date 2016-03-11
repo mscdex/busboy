@@ -188,30 +188,38 @@ Busboy (special) events
 Busboy methods
 --------------
 
-* **(constructor)**(< _object_ >config) - Creates and returns a new Busboy instance with the following valid `config` settings:
+* **(constructor)**(< _object_ >config) - Creates and returns a new Busboy instance.
 
-    * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
+    * The constructor takes the following valid `config` settings:
 
-    * **highWaterMark** - _integer_ - highWaterMark to use for this Busboy instance (Default: WritableStream default).
+        * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
 
-    * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
+        * **highWaterMark** - _integer_ - highWaterMark to use for this Busboy instance (Default: WritableStream default).
 
-    * **defCharset** - _string_ - Default character set to use when one isn't defined (Default: 'utf8').
+        * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
 
-    * **preservePath** - _boolean_ - If paths in the multipart 'filename' field shall be preserved. (Default: false).
+        * **defCharset** - _string_ - Default character set to use when one isn't defined (Default: 'utf8').
 
-    * **limits** - _object_ - Various limits on incoming data. Valid properties are:
+        * **preservePath** - _boolean_ - If paths in the multipart 'filename' field shall be preserved. (Default: false).
 
-        * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
+        * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
-        * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
+            * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
 
-        * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
+            * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
 
-        * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes) (Default: Infinity).
+            * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
 
-        * **files** - _integer_ - For multipart forms, the max number of file fields (Default: Infinity).
+            * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes) (Default: Infinity).
 
-        * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
+            * **files** - _integer_ - For multipart forms, the max number of file fields (Default: Infinity).
 
-        * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+            * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
+
+            * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+
+    * The constructor can throw errors:
+
+        * **Unsupported content type: $type** - The `Content-Type` isn't one Busboy can parse.
+
+        * **Missing Content-Type** - The provided headers don't include `Content-Type` at all.
