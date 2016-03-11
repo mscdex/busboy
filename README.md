@@ -215,3 +215,12 @@ Busboy methods
         * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
 
         * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+
+Busboy constructor exceptions
+-----------------------------
+
+The `new Busboy({ headers: req.headers })` constructor can throw a couple of errors:
+
+* **Unsupported content type: $type** - The `Content-Type` isn't one Busboy can parse.
+
+* **Missing Content-Type** - The provided headers don't include `Content-Type` at all.
