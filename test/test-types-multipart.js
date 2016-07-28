@@ -249,6 +249,13 @@ var tests = [
       ['field', 'cont', '{}', false, false, '7bit', 'application/json']
     ],
     what: 'content-type for fields'
+  },
+  { source: [
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--\r\n'
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [],
+    what: 'empty form'
   }
 ];
 
