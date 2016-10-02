@@ -202,9 +202,9 @@ Busboy methods
 
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
-        * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
+        * **fieldNameSize** - _integer_ - Max field name size (`Number` of bytes or `String` parsed by [bytes][bytes]) (Default: '100b' = 100 bytes).
 
-        * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
+        * **fieldSize** - _integer_ - Max field value size (`Number` of bytes or `String` parsed by [bytes][bytes]) (Default: '1mb' = 1 MB).
 
         * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
 
@@ -215,3 +215,5 @@ Busboy methods
         * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
 
         * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+
+[bytes]: https://github.com/visionmedia/bytes.js
