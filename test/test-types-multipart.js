@@ -33,10 +33,10 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
-      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain', null],
+      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain', null],
+      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream', null],
+      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream', null]
     ],
     what: 'Fields and files'
   },
@@ -58,9 +58,9 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain'],
-      ['field', 'pass', 'some random pass', false, false, '7bit', 'text/plain'],
-      ['field', 'bit', '2', false, false, '7bit', 'text/plain']
+      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain', null],
+      ['field', 'pass', 'some random pass', false, false, '7bit', 'text/plain', null],
+      ['field', 'bit', '2', false, false, '7bit', 'text/plain', null]
     ],
     what: 'Fields only'
   },
@@ -90,8 +90,8 @@ var tests = [
       fieldSize: 5
     },
     expected: [
-      ['field', 'file_name_0', 'super', false, true, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream']
+      ['field', 'file_name_0', 'super', false, true, '7bit', 'text/plain', null],
+      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream', null]
     ],
     what: 'Fields and files (limits)'
   },
@@ -113,7 +113,7 @@ var tests = [
       files: 0
     },
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain']
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain', null]
     ],
     what: 'Fields and files (limits: 0 files)'
   },
@@ -141,8 +141,8 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
-      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
+      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain', null],
+      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain', null],
     ],
     events: ['field'],
     what: 'Fields and (ignored) files'
@@ -168,9 +168,9 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream', null],
+      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream', null],
+      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream', null]
     ],
     what: 'Files with filenames containing paths'
   },
@@ -196,9 +196,9 @@ var tests = [
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     preservePath: true,
     expected: [
-      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream', null],
+      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream', null],
+      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream', null]
     ],
     what: 'Paths to be preserved through the preservePath option'
   },
@@ -217,7 +217,7 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain']
+      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain', null]
     ],
     what: 'Empty content-type and empty content-disposition'
   },
@@ -246,7 +246,7 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', '{}', false, false, '7bit', 'application/json']
+      ['field', 'cont', '{}', false, false, '7bit', 'application/json', null]
     ],
     what: 'content-type for fields'
   },
@@ -256,6 +256,29 @@ var tests = [
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [],
     what: 'empty form'
+  },
+  { source: [
+      ['--boundary-8bVxRyJ1L2HS',
+       'Content-Disposition: form-data; name="file"; filename="file-1.raw',
+       'Content-Type: application/octet-stream',
+       '',
+       '0123456789',
+       '--boundary-8bVxRyJ1L2HS',
+       'Content-Disposition: form-data; name="file"; filename="file-2.raw',
+       'Content-Type: application/octet-stream',
+       '',
+       '01234567890123456789',
+       // '--boundary-8bVxRyJ1L2HS--',
+      ].join('\r\n')
+    ],
+    boundary: 'boundary-8bVxRyJ1L2HS',
+    expected: [
+      ['file', 'file', 10, 0, 'file-1.raw', '7bit', 'application/octet-stream', null],
+      ['file', 'file', 20, 0, 'file-2.raw', '7bit', 'application/octet-stream',
+        'Part terminated early due to unexpected end of multipart data'],
+    ],
+    shouldError: 'Unexpected end of multipart data',
+    what: 'incomplete multipart'
   }
 ];
 
@@ -277,7 +300,7 @@ function next() {
 
   if (v.events === undefined || v.events.indexOf('field') > -1) {
     busboy.on('field', function(key, val, keyTrunc, valTrunc, encoding, contype) {
-      results.push(['field', key, val, keyTrunc, valTrunc, encoding, contype]);
+      results.push(['field', key, val, keyTrunc, valTrunc, encoding, contype, null]);
     });
   }
   if (v.events === undefined || v.events.indexOf('file') > -1) {
@@ -289,7 +312,8 @@ function next() {
                   0,
                   filename,
                   encoding,
-                  mimeType];
+                  mimeType,
+                  null];
       results.push(info);
       stream.on('data', function(d) {
         nb += d.length;
@@ -299,6 +323,8 @@ function next() {
         info[2] = nb;
         if (stream.truncated)
           ++info[3];
+      }).on('error', function(err) {
+        info[7] = err.message;
       });
     });
   }
