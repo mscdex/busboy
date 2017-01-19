@@ -13,7 +13,7 @@ var tests = [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
        'Content-Disposition: form-data; name="file_name_0"',
        '',
-       'super alpha file',
+       new Buffer('súper alpha file', 'ascii'),
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
        'Content-Disposition: form-data; name="file_name_1"',
        '',
@@ -33,7 +33,7 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
+      ['field', 'file_name_0', 'súper alpha file', false, false, '7bit', 'text/plain'],
       ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
       ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
       ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
