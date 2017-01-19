@@ -41,6 +41,28 @@ var tests = [
     what: 'Fields and files'
   },
   { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       // content disposition is optional for x-mixed-replace
+       'Content-Type: image/jpeg',
+       '',
+       'data 1',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="data 2"; filename="data2.jpg"',
+       'Content-Type: image/jpeg',
+       '',
+       'data 2...',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    multipartType: 'x-mixed-replace',
+    expected: [
+      ['file', undefined, 6, 0, undefined, '7bit', 'image/jpeg'],
+      ['file', 'data 2', 9, 0, 'data2.jpg', '7bit', 'image/jpeg']
+    ],
+    what: 'Multipart replace'
+  },
+  { source: [
       ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
        'Content-Disposition: form-data; name="cont"',
        '',
@@ -269,7 +291,7 @@ function next() {
         limits: v.limits,
         preservePath: v.preservePath,
         headers: {
-          'content-type': 'multipart/form-data; boundary=' + v.boundary
+          'content-type': 'multipart/' + (v.multipartType || 'form-data') + '; boundary=' + v.boundary
         }
       }),
       finishes = 0,
