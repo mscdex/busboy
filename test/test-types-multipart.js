@@ -35,10 +35,31 @@ var tests = [
     expected: [
       ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
       ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream', 'application/octet-stream'],
+      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream', 'application/octet-stream']
     ],
     what: 'Fields and files'
+  },
+  { source: [
+    ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      'Content-Disposition: form-data; name="from"',
+      '',
+      'A Sender',
+      '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      'Content-Disposition: form-data; name="input-data"; filename="edi.dat"',
+      'Content-Type: multipart/encrypted;',
+      ' protocol="application/pgp-encrypted"; boundary="boundary2AW02w=="',
+      '',
+      'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+      '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+    ].join('\r\n')
+  ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      ['field', 'from', 'A Sender', false, false, '7bit', 'text/plain'],
+      ['file', 'input-data', 1023, 0, 'edi.dat', '7bit', 'multipart/encrypted', 'multipart/encrypted; protocol="application/pgp-encrypted"; boundary="boundary2AW02w=="']
+    ],
+    what: 'Multipart File with full Content-Type'
   },
   { source: [
       ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
@@ -91,7 +112,7 @@ var tests = [
     },
     expected: [
       ['field', 'file_name_0', 'super', false, true, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream', 'application/octet-stream']
     ],
     what: 'Fields and files (limits)'
   },
@@ -168,9 +189,9 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream', 'application/octet-stream'],
+      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream', 'application/octet-stream'],
+      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream', 'application/octet-stream']
     ],
     what: 'Files with filenames containing paths'
   },
@@ -196,9 +217,9 @@ var tests = [
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     preservePath: true,
     expected: [
-      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream']
+      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream', 'application/octet-stream'],
+      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream', 'application/octet-stream'],
+      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream', 'application/octet-stream']
     ],
     what: 'Paths to be preserved through the preservePath option'
   },
@@ -281,7 +302,7 @@ function next() {
     });
   }
   if (v.events === undefined || v.events.indexOf('file') > -1) {
-    busboy.on('file', function(fieldname, stream, filename, encoding, mimeType) {
+    busboy.on('file', function(fieldname, stream, filename, encoding, mimeType, fullMimeType) {
       var nb = 0,
           info = ['file',
                   fieldname,
@@ -289,7 +310,9 @@ function next() {
                   0,
                   filename,
                   encoding,
-                  mimeType];
+                  mimeType,
+                  fullMimeType
+                  ];
       results.push(info);
       stream.on('data', function(d) {
         nb += d.length;
