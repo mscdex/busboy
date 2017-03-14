@@ -89,7 +89,7 @@ http.createServer(function(req, res) {
   if (req.method === 'POST') {
     var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      var saveTo = path.join(os.tmpDir(), path.basename(fieldname));
+      var saveTo = path.join(os.tmpdir(), path.basename(fieldname));
       file.pipe(fs.createWriteStream(saveTo));
     });
     busboy.on('finish', function() {
