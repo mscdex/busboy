@@ -222,6 +222,21 @@ var tests = [
     what: 'Empty content-type and empty content-disposition'
   },
   { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+        'Content-Disposition: form-data; name="file"; filename*=utf-8\'\'n%C3%A4me.txt',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      ['file', 'file', 26, 0, 'näme.txt', '7bit', 'application/octet-stream']
+    ],
+    what: 'Unicode filenames'
+  },
+  { source: [
       ['--asdasdasdasd\r\n',
        'Content-Type: text/plain\r\n',
        'Content-Disposition: form-data; name="foo"\r\n',
