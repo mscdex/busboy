@@ -1,4 +1,4 @@
-{ "name": "busboy",
+{ "name": "@godmodelabs/busboy",
   "version": "0.2.14",
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "A streaming parser for HTML form data for node.js",
