@@ -64,6 +64,22 @@ var tests = [
     ],
     what: 'Fields only'
   },
+  {
+    source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+       'Content-Disposition: form-data; name="file"',
+       'Content-Type: text/plain',
+       '',
+       'this is a file with no name',
+       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
+      ].join('\r\n')
+    ],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      ['file', 'file', 27, 0, '', '7bit', 'text/plain']
+    ],
+    what: "File without a filename attribute"
+  },
   { source: [
       ''
     ],
@@ -234,21 +250,6 @@ var tests = [
     expected: [],
     shouldError: 'Unexpected end of multipart data',
     what: 'Stopped mid-header'
-  },
-  { source: [
-      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
-       'Content-Disposition: form-data; name="cont"',
-       'Content-Type: application/json',
-       '',
-       '{}',
-       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--',
-      ].join('\r\n')
-    ],
-    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
-    expected: [
-      ['field', 'cont', '{}', false, false, '7bit', 'application/json']
-    ],
-    what: 'content-type for fields'
   },
   { source: [
       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--\r\n'
