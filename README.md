@@ -3,9 +3,6 @@ Description
 
 A node.js module for parsing incoming HTML form data.
 
-If you've found this module to be useful and wish to support it, you may do so by visiting this pledgie campaign:
-<a href='https://pledgie.com/campaigns/28774'><img alt='Click here to support busboy' src='https://pledgie.com/campaigns/28774.png?skin_name=chrome' border='0'></a>
-
 
 Requirements
 ============
