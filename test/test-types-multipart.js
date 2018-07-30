@@ -299,6 +299,8 @@ function next() {
         info[2] = nb;
         if (stream.truncated)
           ++info[3];
+
+        assert(Number.isInteger(stream.bytesRead), makeMsg('file.bytesRead', 'is missing'))
       });
     });
   }
