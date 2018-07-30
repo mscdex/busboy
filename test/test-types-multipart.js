@@ -300,7 +300,7 @@ function next() {
         if (stream.truncated)
           ++info[3];
 
-        assert(Number.isInteger(stream.bytesRead), makeMsg('file.bytesRead', 'is missing'))
+        assert(typeof(stream.bytesRead) === 'number', makeMsg('file.bytesRead', 'is missing'))
       });
     });
   }
