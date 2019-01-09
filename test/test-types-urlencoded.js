@@ -168,7 +168,7 @@ function next() {
   });
 
   v.source.forEach(function(s) {
-    busboy.write(new Buffer(s, 'utf8'), EMPTY_FN);
+    busboy.write(Buffer.from(s, 'utf8'), EMPTY_FN);
   });
   busboy.end();
 }
