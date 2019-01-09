@@ -1,10 +1,10 @@
 { "name": "busboy",
-  "version": "0.2.14",
+  "version": "0.3.0",
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/main",
   "dependencies": {
-    "dicer": "0.2.5"
+    "dicer": "0.3.0"
   },
   "scripts": {
     "test": "node test/test.js"
