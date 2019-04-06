@@ -7,7 +7,7 @@ A node.js module for parsing incoming HTML form data.
 Requirements
 ============
 
-* [node.js](http://nodejs.org/) -- v0.8.0 or newer
+* [node.js](http://nodejs.org/) -- v4.5.0 or newer
 
 
 Install
