@@ -13,4 +13,4 @@ assert.deepEqual(getLimit({ fileSize: 2 }, 'fileSize', 1), 2);
 
 assert.throws(function() {
   getLimit({ fieldSize: '1' }, 'fieldSize', 1);
-}, { message: 'busboy: limit fieldSize is not a number' });
+}, /^Error: busboy: limit fieldSize is not a number$/);
