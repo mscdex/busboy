@@ -65,9 +65,9 @@ http.createServer(function(req, res) {
 // Example output, using http://nodejs.org/images/ryan-speaker.jpg as the file:
 //
 // Listening for requests
-// File [filefield]: filename: ryan-speaker.jpg, encoding: binary
-// File [filefield] got 11971 bytes
 // Field [textfield]: value: 'testing! :-)'
+// File [filefield]: filename: ryan-speaker.jpg, encoding: 7bit, mimetype: image/jpeg
+// File [filefield] got 11912 bytes
 // File [filefield] Finished
 // Done parsing form!
 ```
