@@ -38,6 +38,19 @@
 */
 
 //
+// Helper variables
+//
+
+/**
+ * Determines if the current node version requires the modern Buffer implementation
+ **/
+var isModernBuffer = (
+   typeof Buffer.alloc === 'function' &&
+   typeof Buffer.allocUnsafe === 'function' &&
+   typeof Buffer.from === 'function'
+ );
+  
+//
 // Utilities
 //
 
@@ -1008,7 +1021,8 @@ TextEncoder.prototype = {
       } while (last_byte !== EOF_byte);
       this._encoder = null;
     }
-    return new Buffer(bytes);
+     
+    return isModernBuffer ? Buffer.from(bytes) : new Buffer(bytes);
   }
 };
 
