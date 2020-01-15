@@ -986,6 +986,7 @@ TextEncoder.prototype = {
    * @param {{stream: boolean}=} options
    */
   encode: function encode(opt_string, options) {
+
     opt_string = opt_string ? String(opt_string) : '';
     options = Object(options);
     // TODO: any options?
@@ -1008,7 +1009,14 @@ TextEncoder.prototype = {
       } while (last_byte !== EOF_byte);
       this._encoder = null;
     }
-    return new Buffer(bytes);
+    
+    var isModernBuffer = (
+      typeof Buffer.alloc === 'function' &&
+      typeof Buffer.allocUnsafe === 'function' &&
+      typeof Buffer.from === 'function'
+    );
+    
+    return isModernBuffer ? Buffer.from(bytes) : new Buffer(bytes);
   }
 };
 
