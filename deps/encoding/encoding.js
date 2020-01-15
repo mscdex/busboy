@@ -986,7 +986,6 @@ TextEncoder.prototype = {
    * @param {{stream: boolean}=} options
    */
   encode: function encode(opt_string, options) {
-
     opt_string = opt_string ? String(opt_string) : '';
     options = Object(options);
     // TODO: any options?
