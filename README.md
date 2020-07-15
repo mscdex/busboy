@@ -160,6 +160,56 @@ http.createServer(function(req, res) {
 // Done parsing form!
 ```
 
+* Limit file size
+
+```javascript
+var http = require('http'),
+    path = require('path'),
+    os = require('os'),
+    fs = require('fs');
+
+var Busboy = require('busboy');
+
+http.createServer(function(req, res) {
+  if (req.method === 'POST') {	
+	var busboy = new Busboy({ headers: req.headers , limits: {fileSize : 1024 * 1024 }}); //fileSize is expressed in bytes. 1024*1024 = 1MB
+	
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+	  var saveTo = path.join(os.tmpdir(), path.basename(fieldname));
+	  const stream = fs.createWriteStream(saveTo);
+	  file.pipe(stream);
+	  
+	  file.on('limit', function() {
+		res.writeHead(413, { 'Connection': 'close' });
+		res.end();
+	  });
+  
+	/*
+	  Here is another use case:
+
+	  Stream close event will be triggered when file size limit is reached. Busboy's stream will contain a boolean property called truncated:
+	  
+	  stream.on('close', function() {
+		if (file.truncated){  
+			...
+		}
+	  });
+
+	 */
+
+    });
+    busboy.on('finish', function() {
+      res.writeHead(200, { 'Connection': 'close' });
+      res.end("That's all folks!");
+    });
+    return req.pipe(busboy);
+  }
+  res.writeHead(404);
+  res.end();
+}).listen(8000, function() {
+  console.log('Listening for requests');
+});
+```
 
 API
 ===
