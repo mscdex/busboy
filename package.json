@@ -1,5 +1,5 @@
 { "name": "busboy",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/main",
