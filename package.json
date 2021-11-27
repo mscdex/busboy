@@ -13,7 +13,6 @@
   "main": "lib/main",
   "types": "lib/main.d.ts",
   "dependencies": {
-    "dicer": "0.3.0",
     "streamsearch": "0.1.2"
   },
   "devDependencies": {
