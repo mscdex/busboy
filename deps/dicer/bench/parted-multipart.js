@@ -175,7 +175,6 @@ Parser.prototype._parse = function(data) {
           default:
             return this._error('Expected DASH.');
         }
-        break;
       case 'header_name':
         switch (ch) {
           case COLON:
@@ -197,7 +196,7 @@ Parser.prototype._parse = function(data) {
             if (this.pos === 0) {
               break;
             }
-            ; // FALL-THROUGH
+            // FALL-THROUGH
           default:
             buff[this.pos++] = ch;
             break;
