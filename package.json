@@ -1,6 +1,6 @@
 {
   "name": "@fastify/busboy",
-  "version": "0.3.1",
+  "version": "1.0.0",
   "author": "Brian White <mscdex@mscdex.net>",
   "contributors": [
     {
@@ -18,7 +18,7 @@
     "test": "node test/test.js"
   },
   "engines": {
-    "node": ">=4.5.0"
+    "node": ">=10.17.0"
   },
   "keywords": [
     "uploads",
