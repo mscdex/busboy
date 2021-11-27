@@ -13,7 +13,8 @@
   "main": "lib/main",
   "types": "lib/main.d.ts",
   "dependencies": {
-    "dicer": "0.3.0"
+    "dicer": "0.3.0",
+    "streamsearch": "0.1.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.10",
@@ -23,10 +24,12 @@
     "typescript": "^4.5.2"
   },
   "scripts": {
+    "bench:dicer": "node deps/dicer/bench/dicer-bench-multipart-parser.js",
+    "test:dicer": "node deps/dicer/tests/test.js",
     "test:legacy": "node test/test.js",
     "test:mocha": "mocha test",
     "test:types": "tsd",
-    "test": "npm run test:mocha && npm run test:legacy && npm run test:types"
+    "test": "npm run test:mocha && npm run test:legacy && npm run test:dicer && npm run test:types"
   },
   "engines": {
     "node": ">=10.17.0"
@@ -49,5 +52,13 @@
       "module": "commonjs",
       "target": "ES2017"
     }
-  }
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "lib/*",
+    "deps/encoding/*",
+    "deps/dicer/lib",
+    "deps/dicer/LICENSE"
+  ]
 }
