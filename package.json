@@ -1,6 +1,14 @@
-{ "name": "busboy",
+{
+  "name": "@fastify/busboy",
   "version": "0.3.1",
   "author": "Brian White <mscdex@mscdex.net>",
+  "contributors": [
+    {
+      "name": "Igor Savin",
+      "email": "kibertoad@gmail.com",
+      "url": "https://github.com/kibertoad"
+    }
+  ],
   "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/main",
   "dependencies": {
@@ -9,8 +17,23 @@
   "scripts": {
     "test": "node test/test.js"
   },
-  "engines": { "node": ">=4.5.0" },
-  "keywords": [ "uploads", "forms", "multipart", "form-data" ],
-  "licenses": [ { "type": "MIT", "url": "http://github.com/mscdex/busboy/raw/master/LICENSE" } ],
-  "repository" : { "type": "git", "url": "http://github.com/mscdex/busboy.git" }
+  "engines": {
+    "node": ">=4.5.0"
+  },
+  "keywords": [
+    "uploads",
+    "forms",
+    "multipart",
+    "form-data"
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/fastify/busboy/raw/master/LICENSE"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fastify/busboy.git"
+  }
 }
