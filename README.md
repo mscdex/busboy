@@ -1,3 +1,8 @@
+# busboy
+
+[![Build Status](https://github.com/fastify/busboy/workflows/ci/badge.svg)](https://github.com/fastify/busboy/actions)
+
+
 Description
 ===========
 
@@ -7,7 +12,7 @@ A node.js module for parsing incoming HTML form data.
 Requirements
 ============
 
-* [node.js](http://nodejs.org/) -- v4.5.0 or newer
+* [node.js](http://nodejs.org/) -- v12 or newer
 
 
 Install
