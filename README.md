@@ -7,7 +7,8 @@ Description
 ===========
 
 A Node.js module for parsing incoming HTML form data.
-This is an officially supported fork by fastify organization of the amazing library originally created by Brian White,
+
+This is an officially supported fork by [fastify](https://github.com/fastify/) organization of the amazing library [originally created](https://github.com/mscdex/busboy) by Brian White,
 aimed at addressing long-standing issues with it.
 
 
