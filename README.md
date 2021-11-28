@@ -6,19 +6,21 @@
 Description
 ===========
 
-A node.js module for parsing incoming HTML form data.
+A Node.js module for parsing incoming HTML form data.
+This is an officially supported fork by fastify organization of the amazing library originally created by Brian White,
+aimed at addressing long-standing issues with it.
 
 
 Requirements
 ============
 
-* [node.js](http://nodejs.org/) -- v12 or newer
+* [node.js](http://nodejs.org/) -- v10 or newer
 
 
 Install
 =======
 
-    npm install busboy
+    npm install @fastify/busboy
 
 
 Examples
@@ -28,7 +30,7 @@ Examples
 
 ```javascript
 const http = require('http');
-const {inspect} = require('util');
+const { inspect } = require('util');
 const Busboy = require('busboy');
 
 http.createServer((req, res) => {
@@ -79,16 +81,16 @@ http.createServer((req, res) => {
 * Save all incoming files to disk:
 
 ```javascript
-var http = require('http'),
-    path = require('path'),
-    os = require('os'),
-    fs = require('fs');
+const http = require('http');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
-var Busboy = require('busboy');
+const Busboy = require('busboy');
 
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
-    var busboy = new Busboy({ headers: req.headers });
+    const busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       var saveTo = path.join(os.tmpdir(), path.basename(fieldname));
       file.pipe(fs.createWriteStream(saveTo));
@@ -109,14 +111,14 @@ http.createServer(function(req, res) {
 * Parsing (urlencoded) with default options:
 
 ```javascript
-var http = require('http'),
-    inspect = require('util').inspect;
+const http = require('http');
+const { inspect } = require('util');
 
-var Busboy = require('busboy');
+const Busboy = require('busboy');
 
 http.createServer(function(req, res) {
   if (req.method === 'POST') {
-    var busboy = new Busboy({ headers: req.headers });
+    const busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
       console.log('File [' + fieldname + ']: filename: ' + filename);
       file.on('data', function(data) {
