@@ -210,7 +210,7 @@ Busboy methods
 
             * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
 
-            * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
+            * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1 MiB, which is 1024 x 1024 bytes).
 
             * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
 
