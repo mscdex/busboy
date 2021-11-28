@@ -1,7 +1,7 @@
 # busboy
 
 [![Build Status](https://github.com/fastify/busboy/workflows/ci/badge.svg)](https://github.com/fastify/busboy/actions)
-
+[![Coverage Status](https://coveralls.io/repos/fastify/busboy/badge.svg?branch=master)](https://coveralls.io/r/fastify/busboy?branch=master)
 
 Description
 ===========

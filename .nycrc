@@ -8,6 +8,13 @@
 	],
 	"exclude": [
 		"test",
-		"coverage"
-	]
+		"coverage",
+		".eslintrc.js",
+		"deps/dicer/bench"
+	],
+    "check-coverage": true,
+    "lines": 51,
+    "statements": 51,
+    "functions": 49,
+    "branches": 43
 }
