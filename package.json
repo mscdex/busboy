@@ -16,11 +16,10 @@
     "bench:dicer": "node deps/dicer/bench/dicer-bench-multipart-parser.js",
     "lint": "eslint .",
     "lint:everything": "npm run lint && npm run test:types",
-    "test:dicer": "node deps/dicer/tests/test.js",
     "test:legacy": "node test/test.js",
     "test:mocha": "mocha test",
     "test:types": "tsd",
-    "test": "npm run test:mocha && npm run test:legacy && npm run test:dicer"
+    "test": "npm run test:mocha && npm run test:legacy"
   },
   "engines": {
     "node": ">=10.17.0"
