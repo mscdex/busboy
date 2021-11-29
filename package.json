@@ -7,6 +7,11 @@
       "name": "Igor Savin",
       "email": "kibertoad@gmail.com",
       "url": "https://github.com/kibertoad"
+    },
+    {
+      "name": "Aras Abbasi",
+      "email": "aras.abbasi@gmail.com",
+      "url": "https://github.com/uzlopak"
     }
   ],
   "description": "A streaming parser for HTML form data for node.js",
