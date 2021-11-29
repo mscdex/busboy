@@ -1,7 +1,7 @@
 var WritableStream = require('stream').Writable,
     inherits = require('util').inherits;
 
-var StreamSearch = require('streamsearch');
+var StreamSearch = require('../../streamsearch/sbmh');
 
 var PartStream = require('./PartStream'),
     HeaderParser = require('./HeaderParser');

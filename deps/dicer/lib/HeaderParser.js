@@ -1,7 +1,7 @@
 var EventEmitter = require('events').EventEmitter,
     inherits = require('util').inherits;
 
-var StreamSearch = require('streamsearch');
+var StreamSearch = require('../../streamsearch/sbmh');
 
 var B_DCRLF = Buffer.from('\r\n\r\n'),
     RE_CRLF = /\r\n/g,
