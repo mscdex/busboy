@@ -60,6 +60,7 @@
     "lib/*",
     "deps/encoding/*",
     "deps/dicer/lib",
+    "deps/streamsearch/",
     "deps/dicer/LICENSE"
   ]
 }
