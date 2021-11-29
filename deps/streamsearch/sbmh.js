@@ -36,7 +36,7 @@ function jsmemcmp(buf1, pos1, buf2, pos2, num) {
 
 function SBMH(needle) {
   if (typeof needle === 'string')
-    needle = new Buffer(needle);
+    needle = Buffer.from(needle);
   var i, j, needle_len = needle.length;
 
   this.maxMatches = Infinity;
@@ -47,7 +47,7 @@ function SBMH(needle) {
   this._needle = needle;
   this._bufpos = 0;
 
-  this._lookbehind = new Buffer(needle_len);
+  this._lookbehind = Buffer.alloc(needle_len);
 
   // Initialize occurrence table.
   for (j = 0; j < 256; ++j)
@@ -71,7 +71,7 @@ SBMH.prototype.reset = function() {
 SBMH.prototype.push = function(chunk, pos) {
   var r, chlen;
   if (!Buffer.isBuffer(chunk))
-    chunk = new Buffer(chunk, 'binary');
+    chunk = Buffer.from(chunk, 'binary');
   chlen = chunk.length;
   this._bufpos = pos || 0;
   while (r !== chlen && this.matches < this.maxMatches)
