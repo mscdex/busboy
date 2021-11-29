@@ -27,13 +27,6 @@
 var EventEmitter = require('events').EventEmitter,
     inherits = require('util').inherits;
 
-function jsmemcmp(buf1, pos1, buf2, pos2, num) {
-  for (var i = 0; i < num; ++i, ++pos1, ++pos2)
-    if (buf1[pos1] !== buf2[pos2])
-      return false;
-  return true;
-}
-
 function SBMH(needle) {
   if (typeof needle === 'string')
     needle = Buffer.from(needle);
@@ -173,9 +166,11 @@ SBMH.prototype._sbmh_feed = function(data) {
   while (pos <= len - needle_len) {
     ch = data[pos + needle_len - 1];
 
-    if (ch === last_needle_char
-        && data[pos] === needle[0]
-        && jsmemcmp(needle, 0, data, pos, needle_len - 1)) {
+    if (
+      ch === last_needle_char &&
+      data[pos] === needle[0] &&
+      Buffer.compare(needle.subarray(0, needle_len-1), data.subarray(pos, pos + needle_len - 1)) === 0)
+     {
       ++this.matches;
       if (pos > 0)
         this.emit('info', true, data, this._bufpos, pos);
@@ -194,8 +189,18 @@ SBMH.prototype._sbmh_feed = function(data) {
   // Whatever trailing data is left after running this algorithm is added to
   // the lookbehind buffer.
   if (pos < len) {
-    while (pos < len && (data[pos] !== needle[0]
-                         || !jsmemcmp(data, pos, needle, 0, len - pos))) {
+    while (
+      pos < len && 
+      (
+        data[pos] !== needle[0] || 
+        (
+          (Buffer.compare(
+            data.subarray(pos, pos + len - pos),
+            needle.subarray(0, len - pos)
+          ) !== 0)
+        )
+      )
+    ) {
       ++pos;
     }
     if (pos < len) {
