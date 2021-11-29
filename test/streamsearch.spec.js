@@ -1,9 +1,7 @@
-const { describe, it } = require('mocha');
 const { expect } = require('chai');
 const Streamsearch = require('../deps/streamsearch/sbmh');
 
-describe('searchstream', () => {
-
+describe('streamsearch', () => {
     it('begin pos', (done) => {
         const expected = [
             [true, undefined, undefined, undefined],
