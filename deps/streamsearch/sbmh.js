@@ -101,18 +101,20 @@ SBMH.prototype._sbmh_feed = function(data) {
     while (pos < 0 && pos <= len - needle_len) {
       ch = this._sbmh_lookup_char(data, pos + needle_len - 1);
 
-      if (ch === last_needle_char
-          && this._sbmh_memcmp(data, pos, needle_len - 1)) {
+      if (
+        ch === last_needle_char &&
+        this._sbmh_memcmp(data, pos, needle_len - 1)
+      ) {
         this._lookbehind_size = 0;
         ++this.matches;
-        if (pos > -this._lookbehind_size)
-          this.emit('info', true, lookbehind, 0, this._lookbehind_size + pos);
+        if (pos > 0)
+          this.emit('info', true, lookbehind, 0, pos);
         else
           this.emit('info', true);
 
         return (this._bufpos = pos + needle_len);
-      } else
-        pos += occ[ch];
+      }
+      pos += occ[ch];
     }
 
     // No match.
@@ -127,7 +129,7 @@ SBMH.prototype._sbmh_feed = function(data) {
       // or until
       //   pos == 0
       while (pos < 0 && !this._sbmh_memcmp(data, pos, len - pos))
-        pos++;
+        ++pos;
     }
 
     if (pos >= 0) {
@@ -160,26 +162,19 @@ SBMH.prototype._sbmh_feed = function(data) {
   if (pos >= 0)
     pos += this._bufpos;
 
-  // Lookbehind buffer is now empty. Perform Boyer-Moore-Horspool
-  // search with optimized character lookup code that only considers
-  // the current round's haystack data.
-  while (pos <= len - needle_len) {
-    ch = data[pos + needle_len - 1];
+  // Lookbehind buffer is now empty. We only need to check if the 
+  // needle is in the haystack. 
+  if (data.indexOf(needle, pos) !== -1) {
+    pos = data.indexOf(needle, pos);
+    ++this.matches;
+    if (pos > 0)
+      this.emit('info', true, data, this._bufpos, pos);
+    else
+      this.emit('info', true);
 
-    if (
-      ch === last_needle_char &&
-      data[pos] === needle[0] &&
-      Buffer.compare(needle.subarray(0, needle_len-1), data.subarray(pos, pos + needle_len - 1)) === 0)
-     {
-      ++this.matches;
-      if (pos > 0)
-        this.emit('info', true, data, this._bufpos, pos);
-      else
-        this.emit('info', true);
-
-      return (this._bufpos = pos + needle_len);
-    } else
-      pos += occ[ch];
+    return (this._bufpos = pos + needle_len);
+  } else {
+    pos = len - needle_len;
   }
 
   // There was no match. If there's trailing haystack data that we cannot
@@ -188,25 +183,23 @@ SBMH.prototype._sbmh_feed = function(data) {
   // algorithm that starts matching from the beginning instead of the end.
   // Whatever trailing data is left after running this algorithm is added to
   // the lookbehind buffer.
-  if (pos < len) {
-    while (
-      pos < len && 
+  while (
+    pos < len && 
+    (
+      data[pos] !== needle[0] || 
       (
-        data[pos] !== needle[0] || 
-        (
-          (Buffer.compare(
-            data.subarray(pos, pos + len - pos),
-            needle.subarray(0, len - pos)
-          ) !== 0)
-        )
+        (Buffer.compare(
+          data.subarray(pos, pos + len - pos),
+          needle.subarray(0, len - pos)
+        ) !== 0)
       )
-    ) {
-      ++pos;
-    }
-    if (pos < len) {
-      data.copy(lookbehind, 0, pos, pos + (len - pos));
-      this._lookbehind_size = len - pos;
-    }
+    )
+  ) {
+    ++pos;
+  }
+  if (pos < len) {
+    data.copy(lookbehind, 0, pos, pos + (len - pos));
+    this._lookbehind_size = len - pos;
   }
 
   // Everything until pos is guaranteed not to contain needle data.
@@ -218,19 +211,14 @@ SBMH.prototype._sbmh_feed = function(data) {
 };
 
 SBMH.prototype._sbmh_lookup_char = function(data, pos) {
-  if (pos < 0)
-    return this._lookbehind[this._lookbehind_size + pos];
-  else
-    return data[pos];
+  return (pos < 0) 
+    ? this._lookbehind[this._lookbehind_size + pos]
+    : data[pos];
 };
 
 SBMH.prototype._sbmh_memcmp = function(data, pos, len) {
-  var i = 0;
-
-  while (i < len) {
-    if (this._sbmh_lookup_char(data, pos + i) === this._needle[i])
-      ++i;
-    else
+  for (var i = 0; i < len; ++i) {
+    if (this._sbmh_lookup_char(data, pos + i) !== this._needle[i])
       return false;
   }
   return true;
