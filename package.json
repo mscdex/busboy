@@ -25,9 +25,6 @@
   "engines": {
     "node": ">=10.17.0"
   },
-  "dependencies": {
-    "streamsearch": "0.1.2"
-  },
   "devDependencies": {
     "@types/node": "^16.11.10",
     "chai": "^4.3.4",
@@ -63,6 +60,7 @@
     "lib/*",
     "deps/encoding/*",
     "deps/dicer/lib",
+    "deps/streamsearch/",
     "deps/dicer/LICENSE"
   ]
 }
