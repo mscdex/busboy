@@ -26,7 +26,7 @@ function HeaderParser(cfg) {
   this.ss.on('info', function(isMatch, data, start, end) {
     if (data && !self.maxed) {
       if (self.nread + (end - start) > MAX_HEADER_SIZE) {
-        end = (MAX_HEADER_SIZE - self.nread);
+        end = MAX_HEADER_SIZE - self.nread + start;
         self.nread = MAX_HEADER_SIZE;
       } else
         self.nread += (end - start);
@@ -72,8 +72,9 @@ HeaderParser.prototype._parseHeader = function() {
   if (this.npairs === this.maxHeaderPairs)
     return;
 
-  var lines = this.buffer.split(RE_CRLF), len = lines.length, m, h,
-      modded = false;
+  const lines = this.buffer.split(RE_CRLF), 
+    len = lines.length;
+  let m, h;
 
   for (var i = 0; i < len; ++i) {
     if (lines[i].length === 0)
@@ -82,29 +83,26 @@ HeaderParser.prototype._parseHeader = function() {
       // folded header content
       // RFC2822 says to just remove the CRLF and not the whitespace following
       // it, so we follow the RFC and include the leading whitespace ...
-      this.header[h][this.header[h].length - 1] += lines[i];
-    } else {
-      m = RE_HDR.exec(lines[i]);
-      if (m) {
-        h = m[1].toLowerCase();
-        if (m[2]) {
-          if (this.header[h] === undefined)
-            this.header[h] = [m[2]];
-          else
-            this.header[h].push(m[2]);
-        } else
-          this.header[h] = [''];
-        if (++this.npairs === this.maxHeaderPairs)
-          break;
-      } else {
-        this.buffer = lines[i];
-        modded = true;
-        break;
+      if (h) {
+        this.header[h][this.header[h].length - 1] += lines[i];
+        continue;
       }
     }
+    m = RE_HDR.exec(lines[i]);
+    if (m) {
+      h = m[1].toLowerCase();
+      if (m[2]) {
+        if (this.header[h] === undefined)
+          this.header[h] = [m[2]];
+        else
+          this.header[h].push(m[2]);
+      } else
+        this.header[h] = [''];
+      if (++this.npairs === this.maxHeaderPairs)
+        break;
+    } else
+      return;
   }
-  if (!modded)
-    this.buffer = '';
 };
 
 module.exports = HeaderParser;
