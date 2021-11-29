@@ -1,6 +1,7 @@
 {
   "name": "@fastify/busboy",
-  "version": "1.0.0",
+  "version": "1.0.0-next1",
+  "private": false,
   "author": "Brian White <mscdex@mscdex.net>",
   "contributors": [
     {
