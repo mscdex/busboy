@@ -2,6 +2,18 @@ const { expect } = require('chai');
 const Streamsearch = require('../deps/streamsearch/sbmh');
 
 describe('streamsearch', () => {
+    it('should throw an error if the needle is not a String or Buffer', () => {
+        expect(() => new Streamsearch(2)).to.throw("The needle has to be a String or a Buffer.");
+    });
+    it('should throw an error if the needle is an empty String', () => {
+        expect(() => new Streamsearch('')).to.throw("The needle cannot be an empty String/Buffer.");
+    });
+    it('should throw an error if the needle is an empty Buffer', () => {
+        expect(() => new Streamsearch(Buffer.from(''))).to.throw("The needle cannot be an empty String/Buffer.");
+    });
+    it('should throw an error if the needle is bigger than 256 characters', () => {
+        expect(() => new Streamsearch(Buffer.from(Array(257).fill("a").join("")))).to.throw("The needle cannot have a length bigger than 256.");
+    });
     it('should process a Buffer without a needle', (done) => {
         const expected = [
             [false, Buffer.from("bar hello"), 0, 9],
@@ -18,7 +30,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 1) {
+            if (i >= 1) {
                 done();
             }
         });
@@ -41,7 +53,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 1) {
+            if (i >= 1) {
                 done();
             }
         });
@@ -65,7 +77,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 2) {
+            if (i >= 2) {
                 done();
             }
         });
@@ -90,7 +102,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 2) {
+            if (i >= 2) {
                 done();
             }
         });
@@ -114,7 +126,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 1) {
+            if (i >= 1) {
                 done();
             }
         });
@@ -139,7 +151,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 2) {
+            if (i >= 2) {
                 done();
             }
         });
@@ -165,7 +177,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 2) {
+            if (i >= 2) {
                 done();
             }
         });
@@ -193,7 +205,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 3) {
+            if (i >= 3) {
                 done();
             }
         });
@@ -221,7 +233,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 3) {
+            if (i >= 3) {
                 done();
             }
         });
@@ -250,7 +262,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 3) {
+            if (i >= 3) {
                 done();
             }
         });
@@ -281,7 +293,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 3) {
+            if (i >= 3) {
                 done();
             }
         });
@@ -314,7 +326,7 @@ describe('streamsearch', () => {
             expect(start).to.be.eql(expected[i][2]);
             expect(end).to.be.eql(expected[i][3]);
             i++;
-            if (i === 4) {
+            if (i >= 4) {
                 done();
             }
         });

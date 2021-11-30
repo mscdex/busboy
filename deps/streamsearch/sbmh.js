@@ -24,66 +24,76 @@
  * Based heavily on the Streaming Boyer-Moore-Horspool C++ implementation
  * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
  */
-var EventEmitter = require('events').EventEmitter,
-    inherits = require('util').inherits;
+const EventEmitter = require('events').EventEmitter,
+  inherits = require('util').inherits;
 
 function SBMH(needle) {
-  if (typeof needle === 'string')
+  if (typeof needle === 'string') {
     needle = Buffer.from(needle);
-  var i, j, needle_len = needle.length;
+  }
+
+  if (!Buffer.isBuffer(needle)) {
+    throw new TypeError("The needle has to be a String or a Buffer.");
+  }
+
+  const needle_len = needle.length;
+
+  if (needle_len === 0) {
+    throw new Error("The needle cannot be an empty String/Buffer.");
+  }
+
+  if (needle_len > 256) {
+    throw new Error("The needle cannot have a length bigger than 256.");
+  }
 
   this.maxMatches = Infinity;
   this.matches = 0;
 
-  this._occ = new Array(256);
+  this._occ = new Array(256)
+    .fill(needle_len); // Initialize occurrence table.
   this._lookbehind_size = 0;
   this._needle = needle;
   this._bufpos = 0;
 
   this._lookbehind = Buffer.alloc(needle_len);
 
-  // Initialize occurrence table.
-  for (j = 0; j < 256; ++j)
-    this._occ[j] = needle_len;
-
   // Populate occurrence table with analysis of the needle,
   // ignoring last letter.
-  if (needle_len >= 1) {
-    for (i = 0; i < needle_len - 1; ++i)
-      this._occ[needle[i]] = needle_len - 1 - i;
-  }
+  for (var i = 0; i < needle_len - 1; ++i)
+    this._occ[needle[i]] = needle_len - 1 - i;
 }
 inherits(SBMH, EventEmitter);
 
-SBMH.prototype.reset = function() {
+SBMH.prototype.reset = function () {
   this._lookbehind_size = 0;
   this.matches = 0;
   this._bufpos = 0;
 };
 
-SBMH.prototype.push = function(chunk, pos) {
-  var r, chlen;
-  if (!Buffer.isBuffer(chunk))
+SBMH.prototype.push = function (chunk, pos) {
+  if (!Buffer.isBuffer(chunk)) {
     chunk = Buffer.from(chunk, 'binary');
-  chlen = chunk.length;
+  }
+  const chlen = chunk.length;
   this._bufpos = pos || 0;
+  let r;
   while (r !== chlen && this.matches < this.maxMatches)
     r = this._sbmh_feed(chunk);
   return r;
 };
 
-SBMH.prototype._sbmh_feed = function(data) {
-  var len = data.length, needle = this._needle, needle_len = needle.length;
+SBMH.prototype._sbmh_feed = function (data) {
+  const len = data.length,
+    needle = this._needle,
+    needle_len = needle.length,
+    last_needle_char = needle[needle_len - 1];
 
   // Positive: points to a position in `data`
   //           pos == 3 points to data[3]
   // Negative: points to a position in the lookbehind buffer
   //           pos == -2 points to lookbehind[lookbehind_size - 2]
-  var pos = -this._lookbehind_size,
-      last_needle_char = needle[needle_len - 1],
-      occ = this._occ,
-      lookbehind = this._lookbehind,
-      ch;
+  let pos = -this._lookbehind_size,
+    ch;
 
   if (pos < 0) {
     // Lookbehind buffer is not empty. Perform Boyer-Moore-Horspool
@@ -107,14 +117,11 @@ SBMH.prototype._sbmh_feed = function(data) {
       ) {
         this._lookbehind_size = 0;
         ++this.matches;
-        if (pos > 0)
-          this.emit('info', true, lookbehind, 0, pos);
-        else
-          this.emit('info', true);
+        this.emit('info', true);
 
         return (this._bufpos = pos + needle_len);
       }
-      pos += occ[ch];
+      pos += this._occ[ch];
     }
 
     // No match.
@@ -134,24 +141,23 @@ SBMH.prototype._sbmh_feed = function(data) {
 
     if (pos >= 0) {
       // Discard lookbehind buffer.
-      this.emit('info', false, lookbehind, 0, this._lookbehind_size);
+      this.emit('info', false, this._lookbehind, 0, this._lookbehind_size);
       this._lookbehind_size = 0;
     } else {
       // Cut off part of the lookbehind buffer that has
       // been processed and append the entire haystack
       // into it.
-      var bytesToCutOff = this._lookbehind_size + pos;
-
+      const bytesToCutOff = this._lookbehind_size + pos;
       if (bytesToCutOff > 0) {
         // The cut off data is guaranteed not to contain the needle.
-        this.emit('info', false, lookbehind, 0, bytesToCutOff);
+        this.emit('info', false, this._lookbehind, 0, bytesToCutOff);
       }
 
-      lookbehind.copy(lookbehind, 0, bytesToCutOff,
-                      this._lookbehind_size - bytesToCutOff);
+      this._lookbehind.copy(this._lookbehind, 0, bytesToCutOff,
+        this._lookbehind_size - bytesToCutOff);
       this._lookbehind_size -= bytesToCutOff;
 
-      data.copy(lookbehind, this._lookbehind_size);
+      data.copy(this._lookbehind, this._lookbehind_size);
       this._lookbehind_size += len;
 
       this._bufpos = len;
@@ -159,8 +165,7 @@ SBMH.prototype._sbmh_feed = function(data) {
     }
   }
 
-  if (pos >= 0)
-    pos += this._bufpos;
+  pos += (pos >= 0) * this._bufpos;
 
   // Lookbehind buffer is now empty. We only need to check if the 
   // needle is in the haystack. 
@@ -184,9 +189,9 @@ SBMH.prototype._sbmh_feed = function(data) {
   // Whatever trailing data is left after running this algorithm is added to
   // the lookbehind buffer.
   while (
-    pos < len && 
+    pos < len &&
     (
-      data[pos] !== needle[0] || 
+      data[pos] !== needle[0] ||
       (
         (Buffer.compare(
           data.subarray(pos, pos + len - pos),
@@ -198,7 +203,7 @@ SBMH.prototype._sbmh_feed = function(data) {
     ++pos;
   }
   if (pos < len) {
-    data.copy(lookbehind, 0, pos, pos + (len - pos));
+    data.copy(this._lookbehind, 0, pos, pos + (len - pos));
     this._lookbehind_size = len - pos;
   }
 
@@ -210,13 +215,13 @@ SBMH.prototype._sbmh_feed = function(data) {
   return len;
 };
 
-SBMH.prototype._sbmh_lookup_char = function(data, pos) {
-  return (pos < 0) 
+SBMH.prototype._sbmh_lookup_char = function (data, pos) {
+  return (pos < 0)
     ? this._lookbehind[this._lookbehind_size + pos]
     : data[pos];
 };
 
-SBMH.prototype._sbmh_memcmp = function(data, pos, len) {
+SBMH.prototype._sbmh_memcmp = function (data, pos, len) {
   for (var i = 0; i < len; ++i) {
     if (this._sbmh_lookup_char(data, pos + i) !== this._needle[i])
       return false;
