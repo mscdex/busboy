@@ -1,11 +1,11 @@
-var inherits = require('util').inherits,
-    ReadableStream = require('stream').Readable;
+const inherits = require('util').inherits
+const ReadableStream = require('stream').Readable
 
-function PartStream(opts) {
-  ReadableStream.call(this, opts);
+function PartStream (opts) {
+  ReadableStream.call(this, opts)
 }
-inherits(PartStream, ReadableStream);
+inherits(PartStream, ReadableStream)
 
-PartStream.prototype._read = function(n) {};
+PartStream.prototype._read = function (n) {}
 
-module.exports = PartStream;
+module.exports = PartStream

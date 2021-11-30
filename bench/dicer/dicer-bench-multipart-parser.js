@@ -13,7 +13,7 @@ function createMultipartBuffer(boundary, size) {
   return buffer;
 }
 
-for (let i = 0, il = 10; i < il; i++) {
+for (var i = 0, il = 10; i < il; i++) { // eslint-disable-line no-var
   const boundary = '-----------------------------168072824752491622650073',
     d = new Dicer({ boundary: boundary }),
     mb = 100,

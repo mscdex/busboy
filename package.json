@@ -22,7 +22,7 @@
     "bench:busboy": "node bench/fastify-busboy-bench.js",
     "bench:dicer": "node bench/dicer/dicer-bench-multipart-parser.js",
     "coveralls": "nyc report --reporter=lcov",
-    "lint": "eslint .",
+    "lint": "npm run lint:standard",
     "lint:everything": "npm run lint && npm run test:types",
     "lint:fix": "standard --fix",
     "lint:standard": "standard --verbose | snazzy",
