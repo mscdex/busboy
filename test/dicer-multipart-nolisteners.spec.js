@@ -4,7 +4,7 @@ const assert = require('assert'),
   path = require('path'),
   inspect = require('util').inspect;
 
-const FIXTURES_ROOT = path.resolve(__dirname, 'fixtures/');
+const FIXTURES_ROOT = path.join(__dirname, 'fixtures/');
 
 describe('dicer-multipart-nolisteners', () => {
   [

@@ -1,9 +1,10 @@
 const Dicer = require('../deps/dicer/lib/Dicer');
 const assert = require('assert'),
   fs = require('fs'),
+  path = require('path'),
   inspect = require('util').inspect;
 
-const FIXTURES_ROOT = __dirname + '/fixtures/';
+const FIXTURES_ROOT = path.join(__dirname, 'fixtures/');
 
 describe('dicer-multipart-extra-trailer', () => {
   [
@@ -17,12 +18,11 @@ describe('dicer-multipart-extra-trailer', () => {
   ].forEach(function (v) {
     it(v.what, (done) => {
       let fixtureBase = FIXTURES_ROOT + v.source,
-        fd,
         n = 0,
         buffer = Buffer.allocUnsafe(v.chsize),
         state = { parts: [] };
 
-      fd = fs.openSync(fixtureBase + '/original', 'r');
+      const fd = fs.openSync(fixtureBase + '/original', 'r');
 
       const dicer = new Dicer(v.opts);
       let error,

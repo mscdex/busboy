@@ -5,7 +5,7 @@ var StreamSearch = require('../../streamsearch/sbmh');
 
 var B_DCRLF = Buffer.from('\r\n\r\n'),
     RE_CRLF = /\r\n/g,
-    RE_HDR = /^([^:]+):[ \t]?([\x00-\xFF]+)?$/,
+    RE_HDR = /^([^:]+):[ \t]?([\x00-\xFF]+)?$/, // eslint-disable-line no-control-regex
     MAX_HEADER_PAIRS = 2000, // from node's http.js
     MAX_HEADER_SIZE = 80 * 1024; // from node's http_parser
 

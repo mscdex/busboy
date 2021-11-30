@@ -4,7 +4,7 @@ const assert = require('assert'),
   path = require('path'),
   inspect = require('util').inspect;
 
-const FIXTURES_ROOT = __dirname + '/fixtures/';
+const FIXTURES_ROOT = path.join(__dirname, 'fixtures/');
 
 describe('dicer-multipart', () => {
   [
@@ -58,9 +58,7 @@ describe('dicer-multipart', () => {
     it(v.what, (done) => {
 
       const fixtureBase = FIXTURES_ROOT + v.source;
-      let n = 0,
-        buffer = Buffer.allocUnsafe(v.chsize),
-        state = { parts: [], preamble: undefined };
+      const state = { parts: [], preamble: undefined };
 
       const dicer = new Dicer(v.opts);
       let error,

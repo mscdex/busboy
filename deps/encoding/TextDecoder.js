@@ -162,15 +162,6 @@ function decoderError(fatal, opt_code_point) {
 }
 
 /**
- * @param {number} code_point The code point that could not be encoded.
- * @return {number} Always throws, no value is actually returned.
- */
-function encoderError(code_point) {
-  throw new EncodingError('The code point ' + code_point +
-                          ' could not be encoded.');
-}
-
-/**
  * @param {string} label The encoding label.
  * @return {?{name:string,labels:Array.<string>}}
  */
@@ -678,17 +669,6 @@ function indexCodePointFor(pointer, index) {
     return index[pointer] || null;
 }
 
-/**
- * @param {number} code_point The |code point| to search for.
- * @param {Array.<?number>} index The |index| to search within.
- * @return {?number} The first pointer corresponding to |code point| in
- *     |index|, or null if |code point| is not in |index|.
- */
-function indexPointerFor(code_point, index) {
-  var pointer = index.indexOf(code_point);
-  return pointer === -1 ? null : pointer;
-}
-
 /** @type {Object.<string, (Array.<number>|Array.<Array.<number>>)>} */
 var indexes = require('./encoding-indexes');
 
@@ -716,29 +696,6 @@ function indexGB18030CodePointFor(pointer) {
   }
   return code_point_offset + pointer - offset;
 }
-
-/**
- * @param {number} code_point The |code point| to locate in the gb18030 index.
- * @return {number} The first pointer corresponding to |code point| in the
- *     gb18030 index.
- */
-function indexGB18030PointerFor(code_point) {
-  var /** @type {number} */ offset = 0,
-      /** @type {number} */ pointer_offset = 0,
-      /** @type {Array.<Array.<number>>} */ idx = indexes['gb18030'];
-  var i;
-  for (i = 0; i < idx.length; ++i) {
-    var entry = idx[i];
-    if (entry[1] <= code_point) {
-      offset = entry[1];
-      pointer_offset = entry[0];
-    } else {
-      break;
-    }
-  }
-  return pointer_offset + code_point - offset;
-}
-
 
 //
 // 7. API
@@ -1719,26 +1676,6 @@ name_to_encoding['utf-16le'].getDecoder = function(options) {
 // 14.5 x-user-defined
 // TODO: Implement this encoding.
 
-// NOTE: currently unused
-/**
- * @param {string} label The encoding label.
- * @param {ByteInputStream} input_stream The byte stream to test.
- */
-function detectEncoding(label, input_stream) {
-  if (input_stream.match([0xFF, 0xFE])) {
-    input_stream.offset(2);
-    return 'utf-16le';
-  }
-  if (input_stream.match([0xFE, 0xFF])) {
-    input_stream.offset(2);
-    return 'utf-16be';
-  }
-  if (input_stream.match([0xEF, 0xBB, 0xBF])) {
-    input_stream.offset(3);
-    return 'utf-8';
-  }
-  return label;
-}
 function hasEncoding(label) {
   return Object.prototype.hasOwnProperty.call(label_to_encoding, String(label).trim().toLowerCase());
 }

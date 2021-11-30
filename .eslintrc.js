@@ -1,9 +1,11 @@
-const warning = process.env['CI'] ? 2 : 1;
-
 module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
   },
+  ignorePatterns: [
+    'bench',
+    'deps/encoding',
+  ],
   extends: [
     'eslint:recommended',
     'plugin:node/recommended',

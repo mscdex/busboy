@@ -36,13 +36,13 @@ function SBMH(needle) {
     throw new TypeError("The needle has to be a String or a Buffer.");
   }
 
-  const needle_len = needle.length;
+  const needleLength = needle.length;
 
-  if (needle_len === 0) {
+  if (needleLength === 0) {
     throw new Error("The needle cannot be an empty String/Buffer.");
   }
 
-  if (needle_len > 256) {
+  if (needleLength > 256) {
     throw new Error("The needle cannot have a length bigger than 256.");
   }
 
@@ -50,17 +50,17 @@ function SBMH(needle) {
   this.matches = 0;
 
   this._occ = new Array(256)
-    .fill(needle_len); // Initialize occurrence table.
+    .fill(needleLength); // Initialize occurrence table.
   this._lookbehind_size = 0;
   this._needle = needle;
   this._bufpos = 0;
 
-  this._lookbehind = Buffer.alloc(needle_len);
+  this._lookbehind = Buffer.alloc(needleLength);
 
   // Populate occurrence table with analysis of the needle,
   // ignoring last letter.
-  for (var i = 0; i < needle_len - 1; ++i)
-    this._occ[needle[i]] = needle_len - 1 - i;
+  for (var i = 0; i < needleLength - 1; ++i)
+    this._occ[needle[i]] = needleLength - 1 - i;
 }
 inherits(SBMH, EventEmitter);
 
@@ -85,8 +85,8 @@ SBMH.prototype.push = function (chunk, pos) {
 SBMH.prototype._sbmh_feed = function (data) {
   const len = data.length,
     needle = this._needle,
-    needle_len = needle.length,
-    last_needle_char = needle[needle_len - 1];
+    needleLength = needle.length,
+    lastNeedleChar = needle[needleLength - 1];
 
   // Positive: points to a position in `data`
   //           pos == 3 points to data[3]
@@ -108,18 +108,18 @@ SBMH.prototype._sbmh_feed = function (data) {
     //   optimized loop.
     // or until
     //   the character to look at lies outside the haystack.
-    while (pos < 0 && pos <= len - needle_len) {
-      ch = this._sbmh_lookup_char(data, pos + needle_len - 1);
+    while (pos < 0 && pos <= len - needleLength) {
+      ch = this._sbmh_lookup_char(data, pos + needleLength - 1);
 
       if (
-        ch === last_needle_char &&
-        this._sbmh_memcmp(data, pos, needle_len - 1)
+        ch === lastNeedleChar &&
+        this._sbmh_memcmp(data, pos, needleLength - 1)
       ) {
         this._lookbehind_size = 0;
         ++this.matches;
         this.emit('info', true);
 
-        return (this._bufpos = pos + needle_len);
+        return (this._bufpos = pos + needleLength);
       }
       pos += this._occ[ch];
     }
@@ -177,9 +177,9 @@ SBMH.prototype._sbmh_feed = function (data) {
     else
       this.emit('info', true);
 
-    return (this._bufpos = pos + needle_len);
+    return (this._bufpos = pos + needleLength);
   } else {
-    pos = len - needle_len;
+    pos = len - needleLength;
   }
 
   // There was no match. If there's trailing haystack data that we cannot
