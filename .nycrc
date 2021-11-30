@@ -7,10 +7,10 @@
 		"text-summary"
 	],
 	"exclude": [
+		"bench",
 		"test",
 		"coverage",
-		".eslintrc.js",
-		"deps/dicer/bench"
+		".eslintrc.js"
 	],
     "check-coverage": true,
     "lines": 51,

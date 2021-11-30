@@ -1,4 +1,4 @@
-const Dicer = require('../lib/Dicer')
+const Busboy = require('busboy');
 
 function createMultipartBuffer(boundary, size) {
   const head =
@@ -15,7 +15,11 @@ function createMultipartBuffer(boundary, size) {
 
 for (let i = 0, il = 10; i < il; i++) {
   const boundary = '-----------------------------168072824752491622650073',
-    d = new Dicer({ boundary: boundary }),
+    d = new Busboy({
+      headers: {
+        'content-type': 'multipart/form-data; boundary=' + boundary
+      }
+    }),
     mb = 100,
     buffer = createMultipartBuffer(boundary, mb * 1024 * 1024),
     callbacks =
