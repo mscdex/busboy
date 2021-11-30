@@ -5,6 +5,16 @@
 [![Build Status](https://github.com/fastify/busboy/workflows/ci/badge.svg)](https://github.com/fastify/busboy/actions)
 [![Coverage Status](https://coveralls.io/repos/fastify/busboy/badge.svg?branch=master)](https://coveralls.io/r/fastify/busboy?branch=master)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
+[![Known Vulnerabilities](https://snyk.io/test/github/fastify/busboy/badge.svg)](https://snyk.io/test/github/fastify/busboy)
+[![Security Responsible
+Disclosure](https://img.shields.io/badge/Security-Responsible%20Disclosure-yellow.svg)](https://github.com/nodejs/security-wg/blob/HEAD/processes/responsible_disclosure_template.md)
+
+</div>
+
+<div align="center">
+
+[![NPM version](https://img.shields.io/npm/v/@fastify/busboy.svg?style=flat)](https://www.npmjs.com/package/@fastify/busboy)
+[![NPM downloads](https://img.shields.io/npm/dm/@fastify/busboy.svg?style=flat)](https://www.npmjs.com/package/@fastify/busboy)
 
 </div>
 
