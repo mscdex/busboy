@@ -221,6 +221,16 @@ Busboy methods
 
         * **preservePath** - _boolean_ - If paths in the multipart 'filename' field shall be preserved. (Default: false).
 
+        * **isPartAFile** - __function__ - Use this function to override the default file detection functionality. It has following parameters:
+
+            * fieldName - __string__ The name of the field.
+
+            * contentType - __string__ The content-type of the part, e.g. `text/plain`, `image/jpeg`, `application/octet-stream`
+
+            * fileName - __string__ The name of a file supplied by the part.
+
+          (Default: `(fieldName, contentType, fileName) => (contentType === 'application/octet-stream' || fileName !== undefined)`)
+
         * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
             * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).

@@ -23,6 +23,8 @@ new BusboyDefault({ headers: { 'content-type': 'foo' }, limits: { fileSize: 200 
 new BusboyDefault({ headers: { 'content-type': 'foo' }, limits: { files: 200 } }); // $ExpectType Busboy
 new BusboyDefault({ headers: { 'content-type': 'foo' }, limits: { parts: 200 } }); // $ExpectType Busboy
 new BusboyDefault({ headers: { 'content-type': 'foo' }, limits: { headerPairs: 200 } }); // $ExpectType Busboy
+new BusboyDefault({ headers: { 'content-type': 'foo' }, isPartAFile: (fieldName, contentType, fileName) => fieldName === 'my-special-field' || fileName !== 'not-so-special.txt' }); // $ExpectType Busboy
+new BusboyDefault({ headers: { 'content-type': 'foo' }, isPartAFile: (fieldName, contentType, fileName) => fileName !== undefined }); // $ExpectType Busboy
 
 busboy.addListener('file', (fieldname, file, filename, encoding, mimetype) => {
     expectType<string> (fieldname)
