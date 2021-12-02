@@ -10,3 +10,4 @@ Major changes since the last busboy release (0.31):
 * Dicer is now part of the busboy itself and not an external dependency (#14)
 * Tests were converted to Mocha (#11, #12, #22, #23)
 * Add isPartAFile-option, to make the file-detection configurable (#53)
+* Empty Parts will not hang the process (#55)

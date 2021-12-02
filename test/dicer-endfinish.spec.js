@@ -2,7 +2,7 @@ const Dicer = require('../deps/dicer/lib/Dicer')
 const { assert } = require('chai')
 
 describe('dicer-endfinish', () => {
-  it('should properly handle finish', () => {
+  it('should properly handle finish', (done) => {
     const CRLF = '\r\n'
     const boundary = 'boundary'
 
@@ -79,6 +79,7 @@ describe('dicer-endfinish', () => {
     function pauseAfterEnd () {
       assert(firedPauseCallback, 'Failed to call callback after pause')
       assert(firedPauseFinish, 'Failed to finish after pause')
+      done()
     }
     function pauseFinish () {
       firedPauseFinish = true

@@ -49,7 +49,7 @@ describe('dicer-headerparser', () => {
       what: 'Max header size (multiple chunk #2)'
     }
   ].forEach(function (v) {
-    it(v.what, () => {
+    it(v.what, (done) => {
       const parser = new HeaderParser()
       let fired = false
 
@@ -65,6 +65,7 @@ describe('dicer-headerparser', () => {
         parser.push(s)
       })
       assert(fired, `${v.what}: Did not receive header from parser`)
+      done()
     })
   })
 })

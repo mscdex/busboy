@@ -145,7 +145,7 @@ const tests = [
 
 describe('types urlencoded', () => {
   tests.forEach((v) => {
-    it(v.what, () => {
+    it(v.what, (done) => {
       const busboy = new Busboy({
         limits: v.limits,
         headers: {
@@ -178,6 +178,7 @@ describe('types urlencoded', () => {
           )
           ++i
         })
+        done()
       })
 
       v.source.forEach(function (s) {

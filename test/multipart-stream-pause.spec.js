@@ -20,7 +20,7 @@ function formDataFile (key, filename, contentType) {
 }
 
 describe('multipart-stream-pause', () => {
-  it('processes stream correctly', () => {
+  it('processes stream correctly', (done) => {
     const reqChunks = [
       Buffer.concat([
         formDataFile('file', 'file.bin', 'application/octet-stream'),
@@ -67,8 +67,10 @@ describe('multipart-stream-pause', () => {
           'Result mismatch:\nParsed: ' + inspect(result) +
             '\nExpected: ' + inspect(expected[i]))
       })
+      done()
     }).on('error', function (err) {
       assert(false, 'Unexpected error: ' + err.stack)
+      done(err)
     })
 
     reqChunks.forEach(function (buf) {
