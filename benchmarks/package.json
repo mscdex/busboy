@@ -1,0 +1,21 @@
+{
+  "name": "dto",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "getopts": "^2.3.0",
+    "photofinish": "^1.8.0",
+    "systeminformation": "^5.9.15",
+    "tslib": "^2.3.1",
+    "validation-utils": "^7.0.0"
+  },
+  "scripts": {
+    "install-node": "nvm install 17.2.0 && nvm install 16.13.1 && nvm install 14.18.2 && nvm install 12.22.7",
+    "benchmark-busboy": "node busboy/executioner.js -c 0",
+    "benchmark-fastify": "node busboy/executioner.js -c 1",
+    "benchmark-all": "npm run benchmark-busboy -- -p high && npm run benchmark-fastify -- -p high",
+    "benchmark-all-medium": "npm run benchmark-busboy -- -p medium && npm run benchmark-fastify -- -p medium",
+    "benchmark-all-low": "npm run benchmark-busboy -- -p low && npm run benchmark-fastify -- -p low",
+    "combine-results": "node common/resultsCombinator.js -r _results -p 6"
+  }
+}

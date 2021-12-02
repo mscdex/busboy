@@ -3,3 +3,5 @@
 /package-lock.json
 /.nyc_output
 /coverage
+/benchmarks/node_modules/
+/benchmarks/package-lock.json
