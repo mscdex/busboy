@@ -6,8 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/fastify/busboy/badge.svg?branch=master)](https://coveralls.io/r/fastify/busboy?branch=master)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/busboy/badge.svg)](https://snyk.io/test/github/fastify/busboy)
-[![Security Responsible
-Disclosure](https://img.shields.io/badge/Security-Responsible%20Disclosure-yellow.svg)](https://github.com/nodejs/security-wg/blob/HEAD/processes/responsible_disclosure_template.md)
+[![Security Responsible Disclosure](https://img.shields.io/badge/Security-Responsible%20Disclosure-yellow.svg)](https://github.com/nodejs/security-wg/blob/HEAD/processes/responsible_disclosure_template.md)
 
 </div>
 
@@ -26,6 +25,14 @@ A Node.js module for parsing incoming HTML form data.
 This is an officially supported fork by [fastify](https://github.com/fastify/) organization of the amazing library [originally created](https://github.com/mscdex/busboy) by Brian White,
 aimed at addressing long-standing issues with it.
 
+Benchmark (Mean time for 500 Kb payload, 2000 cycles, 1000 cycle warmup):
+
+| Library               | Mean time in nanoseconds |
+|-----------------------|--------------------------|
+| busboy 0.31           |                          |
+| @fastify/busboy 1.0.0 |                          |
+
+[Changelog](https://github.com/fastify/busboy/blob/master/CHANGELOG.md) since busboy 0.31.
 
 Requirements
 ============
