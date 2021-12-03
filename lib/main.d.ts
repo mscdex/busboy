@@ -5,7 +5,7 @@
 /// <reference types="node" />
 
 import * as http from 'http';
-import {Readable, Writable} from 'stream';
+import { Readable, Writable } from 'stream';
 
 declare const busboy: BusboyConstructor;
 export default busboy
@@ -49,7 +49,7 @@ export interface BusboyConfig {
      * Various limits on incoming data.
      */
     limits?:
-        | {
+    | {
         /**
          * Max field name size (in bytes)
          * @default 100 bytes
@@ -86,10 +86,21 @@ export interface BusboyConfig {
          */
         headerPairs?: number | undefined;
     }
-        | undefined;
+    | undefined;
 }
 
 export type BusboyHeaders = { 'content-type': string } & http.IncomingHttpHeaders;
+
+export interface BusboyFileStream extends
+    Readable {
+
+        truncated: boolean;
+
+        /**
+         * The number of bytes that have been read so far.
+         */
+        bytesRead: number;
+}
 
 export interface Busboy extends Writable {
     addListener<Event extends keyof BusboyEvents>(event: Event, listener: BusboyEvents[Event]): this;
@@ -138,7 +149,7 @@ export interface BusboyEvents {
      */
     file: (
         fieldname: string,
-        stream: Readable,
+        stream: BusboyFileStream,
         filename: string,
         transferEncoding: string,
         mimeType: string,

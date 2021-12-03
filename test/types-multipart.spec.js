@@ -452,6 +452,8 @@ describe('types-multipart', () => {
             ++info[3]
           }).on('end', function () {
             info[2] = nb
+            assert(typeof (stream.bytesRead) === 'number', 'file.bytesRead is missing')
+            assert(stream.bytesRead === nb, 'file.bytesRead is not equal to filesize')
             if (stream.truncated) { ++info[3] }
           })
         })
