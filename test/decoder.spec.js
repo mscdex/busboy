@@ -1,4 +1,4 @@
-const { assert } = require('chai')
+const { assert, expect } = require('chai')
 const { Decoder } = require('../lib/utils')
 
 describe('Decoder', () => {
@@ -75,5 +75,14 @@ describe('Decoder', () => {
                 'Expected: ' + v.expected
       assert.deepEqual(result, v.expected, msg)
     })
+  })
+
+  it('reset sets internal buffer to undefined', () => {
+    const dec = new Decoder()
+    dec.write('Hello+world%2')
+
+    expect(dec.buffer).to.be.not.equal(undefined)
+    dec.reset()
+    expect(dec.buffer).to.be.equal(undefined)
   })
 })

@@ -101,6 +101,98 @@ describe('types-multipart', () => {
     {
       source: [
         ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+          'Content-Type: application/octet-stream',
+          '',
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ].join('\r\n')
+      ],
+      boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      limits: {
+        fields: 0
+      },
+      events: ['file'],
+      expected: [
+        ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream']
+      ],
+      what: 'should not emit fieldsLimit if no field was sent'
+    },
+    {
+      source: [
+        ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'super alpha file',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+          'Content-Type: application/octet-stream',
+          '',
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ].join('\r\n')
+      ],
+      boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      limits: {
+        fields: 0
+      },
+      events: ['file', 'fieldsLimit'],
+      expected: [
+        ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream']
+      ],
+      what: 'should respect fields limit of 0'
+    },
+    {
+      source: [
+        ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'super alpha file',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="file_name_1"',
+          '',
+          'super beta file',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+          'Content-Type: application/octet-stream',
+          '',
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ].join('\r\n')
+      ],
+      boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      limits: {
+        fields: 1
+      },
+      events: ['field', 'file', 'fieldsLimit'],
+      expected: [
+        ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
+        ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream']
+      ],
+      what: 'should respect fields limit of 1'
+    },
+    {
+      source: [
+        ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'super alpha file',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ].join('\r\n')
+      ],
+      boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      limits: {
+        files: 0
+      },
+      events: ['field'],
+      expected: [
+        ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain']
+      ],
+      what: 'should not emit filesLimit if no file was sent'
+    },
+    {
+      source: [
+        ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
           'Content-Disposition: form-data; name="file_name_0"',
           '',
           'super alpha file',
@@ -116,10 +208,41 @@ describe('types-multipart', () => {
       limits: {
         files: 0
       },
+      events: ['field', 'filesLimit'],
       expected: [
         ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain']
       ],
-      what: 'Fields and files (limits: 0 files)'
+      what: 'should respect fields limit of 0'
+    },
+    {
+      source: [
+        ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'super alpha file',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+          'Content-Type: application/octet-stream',
+          '',
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+          'Content-Disposition: form-data; name="upload_file_b"; filename="1k_b.dat"',
+          'Content-Type: application/octet-stream',
+          '',
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ].join('\r\n')
+      ],
+      boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+      limits: {
+        files: 1
+      },
+      events: ['field', 'file', 'filesLimit'],
+      expected: [
+        ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
+        ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream']
+      ],
+      what: 'should respect fields limit of 1'
     },
     {
       source: [
