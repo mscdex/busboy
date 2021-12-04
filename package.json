@@ -34,6 +34,9 @@
   "engines": {
     "node": ">=10.17.0"
   },
+  "dependencies": {
+    "text-decoding": "^1.0.0"
+  },
   "devDependencies": {
     "@types/node": "^16.11.10",
     "busboy": "^0.3.1",
@@ -74,7 +77,6 @@
       "it"
     ],
     "ignore": [
-      "deps/encoding",
       "bench"
     ]
   },
