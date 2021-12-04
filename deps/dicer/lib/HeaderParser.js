@@ -1,36 +1,34 @@
 const EventEmitter = require('events').EventEmitter
 const inherits = require('util').inherits
+const getLimit = require('../../../lib/utils').getLimit
 
 const StreamSearch = require('../../streamsearch/sbmh')
 
 const B_DCRLF = Buffer.from('\r\n\r\n')
 const RE_CRLF = /\r\n/g
 const RE_HDR = /^([^:]+):[ \t]?([\x00-\xFF]+)?$/ // eslint-disable-line no-control-regex
-const MAX_HEADER_PAIRS = 2000 // from node's http.js
-const MAX_HEADER_SIZE = 80 * 1024 // from node's http_parser
 
 function HeaderParser (cfg) {
   EventEmitter.call(this)
 
+  cfg = cfg || {}
   const self = this
   this.nread = 0
   this.maxed = false
   this.npairs = 0
-  this.maxHeaderPairs = (cfg && typeof cfg.maxHeaderPairs === 'number'
-    ? cfg.maxHeaderPairs
-    : MAX_HEADER_PAIRS)
+  this.maxHeaderPairs = getLimit(cfg, 'maxHeaderPairs', 2000)
+  this.maxHeaderSize = getLimit(cfg, 'maxHeaderSize', 80 * 1024)
   this.buffer = ''
   this.header = {}
   this.finished = false
   this.ss = new StreamSearch(B_DCRLF)
   this.ss.on('info', function (isMatch, data, start, end) {
     if (data && !self.maxed) {
-      if (self.nread + (end - start) > MAX_HEADER_SIZE) {
-        end = MAX_HEADER_SIZE - self.nread + start
-        self.nread = MAX_HEADER_SIZE
+      if (self.nread + end - start >= self.maxHeaderSize) {
+        end = self.maxHeaderSize - self.nread + start
+        self.nread = self.maxHeaderSize
+        self.maxed = true
       } else { self.nread += (end - start) }
-
-      if (self.nread === MAX_HEADER_SIZE) { self.maxed = true }
 
       self.buffer += data.toString('binary', start, end)
     }

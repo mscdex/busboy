@@ -1,6 +1,6 @@
 # Changelog
 
-Major changes since the last busboy release (0.31):
+Major changes since the last busboy release (0.3.1):
 
 # 1.0.0 - TBD, 2021
 
@@ -11,4 +11,5 @@ Major changes since the last busboy release (0.31):
 * Tests were converted to Mocha (#11, #12, #22, #23)
 * Add isPartAFile-option, to make the file-detection configurable (#53)
 * Empty Parts will not hang the process (#55)
-* FileStreams also provide the property `bytesRead`
+* FileStreams also provide the property `bytesRead` (#51)
+* add and expose headerSize limit (#64)

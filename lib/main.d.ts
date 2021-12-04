@@ -82,9 +82,15 @@ export interface BusboyConfig {
         parts?: number | undefined;
         /**
          * For multipart forms, the max number of header key=>value pairs to parse
-         * @default 2000 (same as node's http)
+         * @default 2000
          */
         headerPairs?: number | undefined;
+
+        /**
+         * For multipart forms, the max size of a header part
+         * @default 81920
+         */
+        headerSize?: number | undefined;
     }
     | undefined;
 }

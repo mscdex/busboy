@@ -253,7 +253,9 @@ Busboy methods
 
             * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
 
-            * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+            * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000
+
+            * **headerSize** - _integer_ - For multipart forms, the max size of a multipart header **Default:** 81920.
 
     * The constructor can throw errors:
 
