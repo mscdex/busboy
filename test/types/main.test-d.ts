@@ -1,5 +1,6 @@
 import BusboyDefault, { BusboyConstructor, BusboyConfig, BusboyHeaders, Busboy, BusboyEvents, BusboyFileStream } from '../..';
 import {expectError, expectType} from "tsd";
+import BusboyESM from "../..";
 
 // test type exports
 type Constructor = BusboyConstructor;
@@ -7,6 +8,9 @@ type Config = BusboyConfig;
 type Headers = BusboyHeaders;
 type Events = BusboyEvents;
 type BB = Busboy;
+
+expectType<Busboy>(new BusboyESM({ headers: { 'content-type': 'foo' } }));
+expectType<Busboy>(new Busboy({ headers: { 'content-type': 'foo' } }));
 
 expectError(new BusboyDefault({}));
 const busboy = BusboyDefault({ headers: { 'content-type': 'foo' } }); // $ExpectType Busboy

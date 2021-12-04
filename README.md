@@ -221,6 +221,8 @@ Busboy methods
 
         * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
 
+        * **autoDestroy** - _boolean_ - Whether this stream should automatically call .destroy() on itself after ending. (Default: false).
+
         * **highWaterMark** - _integer_ - highWaterMark to use for this Busboy instance (Default: WritableStream default).
 
         * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
@@ -259,6 +261,12 @@ Busboy methods
 
     * The constructor can throw errors:
 
-        * **Unsupported content type: $type** - The `Content-Type` isn't one Busboy can parse.
+        * **Busboy expected an options-Object.** - Busboy expected an Object as first parameters.
 
-        * **Missing Content-Type** - The provided headers don't include `Content-Type` at all.
+        * **Busboy expected an options-Object with headers-attribute.** - The first parameter is lacking of a headers-attribute.
+
+        * **Limit $limit is not a valid number** - Busboy expected the desired limit to be of type number. Busboy throws this Error to prevent a potential security issue by falling silently back to the Busboy-defaults. Potential source for this Error can be the direct use of environment variables without transforming them to the type number. 
+
+        * **Unsupported Content-Type.** - The `Content-Type` isn't one Busboy can parse.
+
+        * **Missing Content-Type-header.** - The provided headers don't include `Content-Type` at all.

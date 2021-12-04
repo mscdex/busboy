@@ -7,8 +7,8 @@
 import * as http from 'http';
 import { Readable, Writable } from 'stream';
 
-declare const busboy: BusboyConstructor;
-export default busboy
+export const Busboy: BusboyConstructor;
+export default Busboy
 
 export interface BusboyConfig {
     /**
