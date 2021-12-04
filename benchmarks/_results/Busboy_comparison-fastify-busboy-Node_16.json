@@ -1,0 +1,10 @@
+{
+  "runtimeVersion": "16.13.0, V8 9.4.146.19-node.13",
+  "benchmarkName": "Busboy comparison",
+  "benchmarkEntryName": "fastify-busboy",
+  "benchmarkCycles": 2000,
+  "benchmarkCycleSamples": 50,
+  "warmupCycles": 1000,
+  "meanTimeNs": 270984.48082281026,
+  "meanTimeMs": 0.27098448082281024
+}

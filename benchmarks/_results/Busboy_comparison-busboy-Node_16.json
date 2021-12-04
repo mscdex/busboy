@@ -1,0 +1,10 @@
+{
+  "runtimeVersion": "16.13.0, V8 9.4.146.19-node.13",
+  "benchmarkName": "Busboy comparison",
+  "benchmarkEntryName": "busboy",
+  "benchmarkCycles": 2000,
+  "benchmarkCycleSamples": 50,
+  "warmupCycles": 1000,
+  "meanTimeNs": 340114.0411908194,
+  "meanTimeMs": 0.3401140411908194
+}
