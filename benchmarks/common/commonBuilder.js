@@ -30,7 +30,7 @@ const PRESET = {
 }
 
 function getCommonBuilder () {
-  const presetId = options.preset || 'LOW'
+  const presetId = options.preset || 'MEDIUM'
   const preset = validateNotNil(PRESET[presetId.toUpperCase()], `Unknown preset: ${presetId}`)
 
   const builder = new BenchmarkBuilder()
