@@ -19,7 +19,7 @@
   "main": "lib/main",
   "types": "lib/main.d.ts",
   "scripts": {
-    "bench:busboy": "node bench/fastify-busboy-bench.js",
+    "bench:busboy": "cd benchmarks && npm install && npm run benchmark-fastify",
     "bench:dicer": "node bench/dicer/dicer-bench-multipart-parser.js",
     "coveralls": "nyc report --reporter=lcov",
     "lint": "npm run lint:standard",
