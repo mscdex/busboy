@@ -21,8 +21,6 @@ function Dicer (cfg) {
 
   this._headerFirst = cfg.headerFirst
 
-  const self = this
-
   this._dashes = 0
   this._parts = 0
   this._finished = false
@@ -34,11 +32,10 @@ function Dicer (cfg) {
   this._part = undefined
   this._cb = undefined
   this._ignoreData = false
-  this._partOpts = (typeof cfg.partHwm === 'number'
-    ? { highWaterMark: cfg.partHwm }
-    : {})
+  this._partOpts = { highWaterMark: cfg.partHwm }
   this._pause = false
 
+  const self = this
   this._hparser = new HeaderParser(cfg)
   this._hparser.on('header', function (header) {
     self._inHeader = false

@@ -28,6 +28,7 @@ describe('dicer-multipart-extra-trailer', () => {
       let error
       let partErrors = 0
       let finishes = 0
+      let trailerEmitted = false
 
       dicer.on('part', function (p) {
         const part = {
@@ -55,8 +56,12 @@ describe('dicer-multipart-extra-trailer', () => {
         })
       }).on('error', function (err) {
         error = err
+      }).on('trailer', function (data) {
+        trailerEmitted = true
+        assert(data.toString() === 'Extra', 'trailer should contain the extra data')
       }).on('finish', function () {
         assert(finishes++ === 0, makeMsg(v.what, 'finish emitted multiple times'))
+        assert(trailerEmitted, makeMsg(v.what, 'should have emitted trailer'))
 
         if (v.dicerError) { assert(error !== undefined, makeMsg(v.what, 'Expected error')) } else { assert(error === undefined, makeMsg(v.what, 'Unexpected error')) }
 
