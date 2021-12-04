@@ -14,8 +14,8 @@
 		".eslintrc.js"
 	],
     "check-coverage": true,
-    "lines": 51,
-    "statements": 51,
-    "functions": 49,
-    "branches": 43
+    "lines": 95,
+    "statements": 90,
+    "functions": 95,
+    "branches": 90
 }
