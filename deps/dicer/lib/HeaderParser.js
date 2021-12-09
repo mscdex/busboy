@@ -79,14 +79,19 @@ HeaderParser.prototype._parseHeader = function () {
         continue
       }
     }
+
+    const posColon = lines[i].indexOf(':')
+    if (
+      posColon === -1 ||
+      posColon === 0
+    ) {
+      return
+    }
     m = RE_HDR.exec(lines[i])
-    if (m) {
-      h = m[1].toLowerCase()
-      if (m[2]) {
-        if (this.header[h] === undefined) { this.header[h] = [m[2]] } else { this.header[h].push(m[2]) }
-      } else { this.header[h] = [''] }
-      if (++this.npairs === this.maxHeaderPairs) { break }
-    } else { return }
+    h = m[1].toLowerCase()
+    this.header[h] = this.header[h] || []
+    this.header[h].push((m[2] || ''))
+    if (++this.npairs === this.maxHeaderPairs) { break }
   }
 }
 

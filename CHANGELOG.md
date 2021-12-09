@@ -1,6 +1,10 @@
 # Changelog
 
-Major changes since the last busboy release (0.31):
+Major changes since the last busboy release (0.3.1):
+
+# 1.0.1 - TBD
+
+* Fix potential ReDOS-Attack-Vector in Headerparser (#72)
 
 # 1.0.0 - 04 December, 2021
 

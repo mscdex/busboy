@@ -90,6 +90,27 @@ describe('dicer-headerparser', () => {
       what: 'should enforce maxHeaderSize of 32 and get only first character of second pair'
     },
     {
+      source: ['Content-Type:\r\n text/plain',
+        ' : '
+      ].join('\r\n') + DCRLF,
+      expected: { 'content-type': [' text/plain : '] },
+      what: 'should not break if invalid header pair (colon exists but empty key and value) is provided'
+    },
+    {
+      source: ['Content-Type:\r\n text/plain',
+        'FoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobaz'
+      ].join('\r\n') + DCRLF,
+      expected: { 'content-type': [' text/plain'] },
+      what: 'should not break if invalid header pair (no distinctive colon) is provided'
+    },
+    {
+      source: ['Content-Type:\r\n text/plain',
+        ':FoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobazFoobaz'
+      ].join('\r\n') + DCRLF,
+      expected: { 'content-type': [' text/plain'] },
+      what: 'should not break if invalid header pair (no key) is provided'
+    },
+    {
       source: ['Content-Type:\t  text/plain',
         'Content-Length:0'
       ].join('\r\n') + DCRLF,
