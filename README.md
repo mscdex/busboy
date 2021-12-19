@@ -1,222 +1,188 @@
-Description
-===========
+# Description
 
 A node.js module for parsing incoming HTML form data.
 
 
-Requirements
-============
+# Requirements
 
-* [node.js](http://nodejs.org/) -- v4.5.0 or newer
+* [node.js](http://nodejs.org/) -- v10.16.0 or newer
 
 
-Install
-=======
+# Install
 
     npm install busboy
 
 
-Examples
-========
+# Examples
 
 * Parsing (multipart) with default options:
 
-```javascript
-var http = require('http'),
-    inspect = require('util').inspect;
+```js
+const http = require('http'),
 
-var Busboy = require('busboy');
+const busboy = require('busboy');
 
-http.createServer(function(req, res) {
+http.createServer((req, res) => {
   if (req.method === 'POST') {
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
-      file.on('data', function(data) {
-        console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
-      });
-      file.on('end', function() {
-        console.log('File [' + fieldname + '] Finished');
+    console.log('POST request');
+    const bb = busboy({ headers: req.headers });
+    bb.on('file', (name, file, info) => {
+      const { filename, encoding, mime } = info;
+      console.log(
+        `File [${name}]: filename: %j, encoding: %j, mime: %j`,
+        filename,
+        encoding,
+        mime
+      );
+      file.on('data', (data) => {
+        console.log(`File [${name}] got ${data.length} bytes`);
+      }).on('close', () => {
+        console.log(`File [${name}] done`);
       });
     });
-    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
-      console.log('Field [' + fieldname + ']: value: ' + inspect(val));
+    bb.on('field', (name, val, info) => {
+      console.log(`Field [${name}]: value: %j`, val);
     });
-    busboy.on('finish', function() {
+    bb.on('close', () => {
       console.log('Done parsing form!');
       res.writeHead(303, { Connection: 'close', Location: '/' });
       res.end();
     });
-    req.pipe(busboy);
+    req.pipe(bb);
   } else if (req.method === 'GET') {
     res.writeHead(200, { Connection: 'close' });
-    res.end('<html><head></head><body>\
-               <form method="POST" enctype="multipart/form-data">\
-                <input type="text" name="textfield"><br />\
-                <input type="file" name="filefield"><br />\
-                <input type="submit">\
-              </form>\
-            </body></html>');
+    res.end(`
+      <html>
+        <head></head>
+        <body>
+          <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="filefield"><br />
+            <input type="text" name="textfield"><br />
+            <input type="submit">
+          </form>
+        </body>
+      </html>
+    `);
   }
-}).listen(8000, function() {
-  console.log('Listening for requests');
-});
-
-// Example output, using http://nodejs.org/images/ryan-speaker.jpg as the file:
-//
-// Listening for requests
-// File [filefield]: filename: ryan-speaker.jpg, encoding: binary
-// File [filefield] got 11971 bytes
-// Field [textfield]: value: 'testing! :-)'
-// File [filefield] Finished
-// Done parsing form!
-```
-
-* Save all incoming files to disk:
-
-```javascript
-var http = require('http'),
-    path = require('path'),
-    os = require('os'),
-    fs = require('fs');
-
-var Busboy = require('busboy');
-
-http.createServer(function(req, res) {
-  if (req.method === 'POST') {
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      var saveTo = path.join(os.tmpDir(), path.basename(fieldname));
-      file.pipe(fs.createWriteStream(saveTo));
-    });
-    busboy.on('finish', function() {
-      res.writeHead(200, { 'Connection': 'close' });
-      res.end("That's all folks!");
-    });
-    return req.pipe(busboy);
-  }
-  res.writeHead(404);
-  res.end();
-}).listen(8000, function() {
-  console.log('Listening for requests');
-});
-```
-
-* Parsing (urlencoded) with default options:
-
-```javascript
-var http = require('http'),
-    inspect = require('util').inspect;
-
-var Busboy = require('busboy');
-
-http.createServer(function(req, res) {
-  if (req.method === 'POST') {
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      console.log('File [' + fieldname + ']: filename: ' + filename);
-      file.on('data', function(data) {
-        console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
-      });
-      file.on('end', function() {
-        console.log('File [' + fieldname + '] Finished');
-      });
-    });
-    busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
-      console.log('Field [' + fieldname + ']: value: ' + inspect(val));
-    });
-    busboy.on('finish', function() {
-      console.log('Done parsing form!');
-      res.writeHead(303, { Connection: 'close', Location: '/' });
-      res.end();
-    });
-    req.pipe(busboy);
-  } else if (req.method === 'GET') {
-    res.writeHead(200, { Connection: 'close' });
-    res.end('<html><head></head><body>\
-               <form method="POST">\
-                <input type="text" name="textfield"><br />\
-                <select name="selectfield">\
-                  <option value="1">1</option>\
-                  <option value="10">10</option>\
-                  <option value="100">100</option>\
-                  <option value="9001">9001</option>\
-                </select><br />\
-                <input type="checkbox" name="checkfield">Node.js rules!<br />\
-                <input type="submit">\
-              </form>\
-            </body></html>');
-  }
-}).listen(8000, function() {
+}).listen(8000, () => {
   console.log('Listening for requests');
 });
 
 // Example output:
 //
 // Listening for requests
-// Field [textfield]: value: 'testing! :-)'
-// Field [selectfield]: value: '9001'
-// Field [checkfield]: value: 'on'
+//   < ... form submitted ... >
+// POST request
+// File [filefield]: filename: "logo.jpg", encoding: "binary", mime: "image/jpeg"
+// File [filefield] got 11912 bytes
+// Field [textfield]: value: "testing! :-)"
+// File [filefield] done
 // Done parsing form!
 ```
 
+* Save all incoming files to disk:
 
-API
-===
+```js
+const { randomFillSync } = require('crypto');
+const fs = require('fs');
+const http = require('http');
+const os = require('os');
+const path = require('path');
 
-_Busboy_ is a _Writable_ stream
+const busboy = require('busboy');
 
-Busboy (special) events
------------------------
+const random = (() => {
+  const buf = Buffer.alloc(16);
+  return () => randomFillSync(buf).toString('hex');
+})();
 
-* **file**(< _string_ >fieldname, < _ReadableStream_ >stream, < _string_ >filename, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new file form field found. `transferEncoding` contains the 'Content-Transfer-Encoding' value for the file stream. `mimeType` contains the 'Content-Type' value for the file stream.
-    * Note: if you listen for this event, you should always handle the `stream` no matter if you care about the file contents or not (e.g. you can simply just do `stream.resume();` if you want to discard the contents), otherwise the 'finish' event will never fire on the Busboy instance. However, if you don't care about **any** incoming files, you can simply not listen for the 'file' event at all and any/all files will be automatically and safely discarded (these discarded files do still count towards `files` and `parts` limits).
-    * If a configured file size limit was reached, `stream` will both have a boolean property `truncated` (best checked at the end of the stream) and emit a 'limit' event to notify you when this happens.
+http.createServer((req, res) => {
+  if (req.method === 'POST') {
+    const bb = busboy({ headers: req.headers });
+    bb.on('file', (name, file, info) => {
+      const saveTo = path.join(os.tmpDir(), `busboy-upload-${random()}`);
+      file.pipe(fs.createWriteStream(saveTo));
+    });
+    bb.on('close', () => {
+      res.writeHead(200, { 'Connection': 'close' });
+      res.end(`That's all folks!`);
+    });
+    req.pipe(bb);
+    return;
+  }
+  res.writeHead(404);
+  res.end();
+}).listen(8000, () => {
+  console.log('Listening for requests');
+});
+```
 
-* **field**(< _string_ >fieldname, < _string_ >value, < _boolean_ >fieldnameTruncated, < _boolean_ >valueTruncated, < _string_ >transferEncoding, < _string_ >mimeType) - Emitted for each new non-file field found.
 
-* **partsLimit**() - Emitted when specified `parts` limit has been reached. No more 'file' or 'field' events will be emitted.
+# API
 
-* **filesLimit**() - Emitted when specified `files` limit has been reached. No more 'file' events will be emitted.
+## Exports
 
-* **fieldsLimit**() - Emitted when specified `fields` limit has been reached. No more 'field' events will be emitted.
+`busboy` exports a single function:
 
+**( _function_ )**(< _object_ >config) - Creates and returns a new _Writable_ form parser stream.
 
-Busboy methods
---------------
-
-* **(constructor)**(< _object_ >config) - Creates and returns a new Busboy instance.
-
-    * The constructor takes the following valid `config` settings:
+    * Valid `config` properties:
 
         * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
 
-        * **highWaterMark** - _integer_ - highWaterMark to use for this Busboy instance (Default: WritableStream default).
+        * **highWaterMark** - _integer_ - highWaterMark to use for the parser stream. **Default:** node's _stream.Writable_ default.
 
-        * **fileHwm** - _integer_ - highWaterMark to use for file streams (Default: ReadableStream default).
+        * **fileHwm** - _integer_ - highWaterMark to use for individual file streams. **Default:** node's _stream.Readable_ default.
 
-        * **defCharset** - _string_ - Default character set to use when one isn't defined (Default: 'utf8').
+        * **defCharset** - _string_ - Default character set to use when one isn't defined. **Default:** `'utf8'`.
 
-        * **preservePath** - _boolean_ - If paths in the multipart 'filename' field shall be preserved. (Default: false).
+        * **preservePath** - _boolean_ - If paths in filenames from file parts in a `'multipart/form-data'` request shall be preserved. **Default:** `false`.
 
         * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
-            * **fieldNameSize** - _integer_ - Max field name size (in bytes) (Default: 100 bytes).
+            * **fieldNameSize** - _integer_ - Max field name size (in bytes). **Default:** `100`.
 
-            * **fieldSize** - _integer_ - Max field value size (in bytes) (Default: 1MB).
+            * **fieldSize** - _integer_ - Max field value size (in bytes). **Default:** `1048576` (1MB).
 
-            * **fields** - _integer_ - Max number of non-file fields (Default: Infinity).
+            * **fields** - _integer_ - Max number of non-file fields. **Default:** `Infinity`.
 
-            * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes) (Default: Infinity).
+            * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
 
-            * **files** - _integer_ - For multipart forms, the max number of file fields (Default: Infinity).
+            * **files** - _integer_ - For multipart forms, the max number of file fields. **Default:** `Infinity`.
 
-            * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files) (Default: Infinity).
+            * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files). **Default:** `Infinity`.
 
-            * **headerPairs** - _integer_ - For multipart forms, the max number of header key=>value pairs to parse **Default:** 2000 (same as node's http).
+            * **headerPairs** - _integer_ - For multipart forms, the max number of header key-value pairs to parse. **Default:** `2000` (same as node's http module).
 
-    * The constructor can throw errors:
+    This function can throw exceptions if there is something wrong with the values in `config`. For example, if the Content-Type in `headers` is missing entirely, is not a supported type, or is missing the boundary for `'multipart/form-data'` requests.
 
-        * **Unsupported content type: $type** - The `Content-Type` isn't one Busboy can parse.
+## (Special) Parser stream events
 
-        * **Missing Content-Type** - The provided headers don't include `Content-Type` at all.
+* **file**(< _string_ >name, < _Readable_ >stream, < _object_ >info) - Emitted for each new file found. `name` contains the form field name. `stream` is a _Readable_ stream containing the file's data. No transformations/conversions (e.g. base64 to raw binary) are done on the file's data. `info` contains the following properties:
+
+    * `filename` - _string_ - If supplied, this contains the file's filename. **WARNING:** You should almost _never_ use this value as-is (especially if you are using `preservePath: true` in your `config`) as it could contain malicious input. You are better off generating your own (safe) filenames, or at the very least using a hash of the filename.
+
+    * `encoding` - _string_ - The file's `'Content-Transfer-Encoding'` value.
+
+    * `mimeType` - _string_ - The file's `'Content-Type'` value.
+
+    **Note:** If you listen for this event, you should always consume the `stream` whether you care about its contents or not (you can simply do `stream.resume();` if you want to discard/skip the contents), otherwise the `'finish'`/`'close'` event will never fire on the busboy parser stream.
+    However, if you aren't accepting files, you can either simply not listen for the `'file'` event at all or set `limits.files` to `0`, and any/all files will be automatically skipped (these skipped files will still count towards any configured `limits.files` and `limits.parts` limits though).
+
+    **Note:** If a configured `limits.fileSize` limit was reached for a file, `stream` will both have a boolean property `truncated` set to `true` (best checked at the end of the stream) and emit a `'limit'` event to notify you when this happens.
+
+* **field**(< _string_ >name, < _string_ >value, < _object_ >info) - Emitted for each new non-file field found. `name` contains the form field name. `value` contains the string value of the field. `info` contains the following properties:
+
+    * `nameTruncated` - _boolean_ - Whether `name` was truncated or not (due to a configured `limits.fieldNameSize` limit)
+
+    * `valueTruncated` - _boolean_ - Whether `value` was truncated or not (due to a configured `limits.fieldSize` limit)
+
+    * `encoding` - _string_ - The field's `'Content-Transfer-Encoding'` value.
+
+    * `mimeType` - _string_ - The field's `'Content-Type'` value.
+
+* **partsLimit**() - Emitted when the configured `limits.parts` limit has been reached. No more `'file'` or `'field'` events will be emitted.
+
+* **filesLimit**() - Emitted when the configured `limits.files` limit has been reached. No more `'file'` events will be emitted.
+
+* **fieldsLimit**() - Emitted when the configured `limits.fields` limit has been reached. No more `'field'` events will be emitted.

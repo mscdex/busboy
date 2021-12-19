@@ -1,14 +1,13 @@
-var Busboy = require('..');
+'use strict';
 
-var path = require('path'),
-    inspect = require('util').inspect,
-    assert = require('assert');
+const assert = require('assert');
+const { inspect } = require('util');
 
-var EMPTY_FN = function() {};
+const busboy = require('..');
 
-var t = 0,
-    group = path.basename(__filename, '.js') + '/';
-var tests = [
+const active = new Map();
+
+const tests = [
   { source: [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
        'Content-Disposition: form-data; name="file_name_0"',
@@ -19,24 +18,62 @@ var tests = [
        '',
        'super beta file',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
-       'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+       'A'.repeat(1023),
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_1"; filename="1k_b.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="1k_b.dat"',
        'Content-Type: application/octet-stream',
        '',
-       'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+       'B'.repeat(1023),
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
       ].join('\r\n')
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
-      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 1023, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 1023, 0, '1k_b.dat', '7bit', 'application/octet-stream']
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'super alpha file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'field',
+        name: 'file_name_1',
+        val: 'super beta file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('A'.repeat(1023)),
+        info: {
+          filename: '1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_1',
+        data: Buffer.from('B'.repeat(1023)),
+        info: {
+          filename: '1k_b.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
     ],
     what: 'Fields and files'
   },
@@ -50,7 +87,7 @@ var tests = [
        '',
        'some random pass',
        '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
-       'Content-Disposition: form-data; name="bit"',
+       'Content-Disposition: form-data; name=bit',
        '',
        '2',
        '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
@@ -58,9 +95,36 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain'],
-      ['field', 'pass', 'some random pass', false, false, '7bit', 'text/plain'],
-      ['field', 'bit', '2', false, false, '7bit', 'text/plain']
+      { type: 'field',
+        name: 'cont',
+        val: 'some random content',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'field',
+        name: 'pass',
+        val: 'some random pass',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'field',
+        name: 'bit',
+        val: '2',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
     ],
     what: 'Fields only'
   },
@@ -69,6 +133,7 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [],
+    shouldError: 'Unexpected end of form',
     what: 'No fields and no files'
   },
   { source: [
@@ -77,7 +142,8 @@ var tests = [
        '',
        'super alpha file',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -90,8 +156,26 @@ var tests = [
       fieldSize: 5
     },
     expected: [
-      ['field', 'file_name_0', 'super', false, true, '7bit', 'text/plain'],
-      ['file', 'upload_file_0', 13, 2, '1k_a.dat', '7bit', 'application/octet-stream']
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'super',
+        info: {
+          nameTruncated: false,
+          valueTruncated: true,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ABCDEFGHIJKLM'),
+        info: {
+          filename: '1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: true,
+      },
     ],
     what: 'Fields and files (limits)'
   },
@@ -101,7 +185,8 @@ var tests = [
        '',
        'super alpha file',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -113,7 +198,17 @@ var tests = [
       files: 0
     },
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain']
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'super alpha file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      'filesLimit',
     ],
     what: 'Fields and files (limits: 0 files)'
   },
@@ -127,39 +222,62 @@ var tests = [
        '',
        'super beta file',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
-       'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+       'A'.repeat(1023),
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_1"; filename="1k_b.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="1k_b.dat"',
        'Content-Type: application/octet-stream',
        '',
-       'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+       'B'.repeat(1023),
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
       ].join('\r\n')
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['field', 'file_name_0', 'super alpha file', false, false, '7bit', 'text/plain'],
-      ['field', 'file_name_1', 'super beta file', false, false, '7bit', 'text/plain'],
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'super alpha file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'field',
+        name: 'file_name_1',
+        val: 'super beta file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
     ],
     events: ['field'],
     what: 'Fields and (ignored) files'
   },
   { source: [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="/tmp/1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="/tmp/1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_1"; filename="C:\\files\\1k_b.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="C:\\files\\1k_b.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_2"; filename="relative/1k_c.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_2"; filename="relative/1k_c.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -168,25 +286,55 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['file', 'upload_file_0', 26, 0, '1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, '1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, '1k_c.dat', '7bit', 'application/octet-stream']
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: '1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_1',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: '1k_b.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_2',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: '1k_c.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
     ],
     what: 'Files with filenames containing paths'
   },
   { source: [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_0"; filename="/absolute/1k_a.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="/absolute/1k_a.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_1"; filename="C:\\absolute\\1k_b.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="C:\\absolute\\1k_b.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
        '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-       'Content-Disposition: form-data; name="upload_file_2"; filename="relative/1k_c.dat"',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_2"; filename="relative/1k_c.dat"',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -196,9 +344,36 @@ var tests = [
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     preservePath: true,
     expected: [
-      ['file', 'upload_file_0', 26, 0, '/absolute/1k_a.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_1', 26, 0, 'C:\\absolute\\1k_b.dat', '7bit', 'application/octet-stream'],
-      ['file', 'upload_file_2', 26, 0, 'relative/1k_c.dat', '7bit', 'application/octet-stream']
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: '/absolute/1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_1',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: 'C:\\absolute\\1k_b.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_2',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: 'relative/1k_c.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
     ],
     what: 'Paths to be preserved through the preservePath option'
   },
@@ -217,13 +392,23 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', 'some random content', false, false, '7bit', 'text/plain']
+      { type: 'field',
+        name: 'cont',
+        val: 'some random content',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
     ],
     what: 'Empty content-type and empty content-disposition'
   },
   { source: [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-        'Content-Disposition: form-data; name="file"; filename*=utf-8\'\'n%C3%A4me.txt',
+       'Content-Disposition: form-data; '
+         + 'name="file"; filename*=utf-8\'\'n%C3%A4me.txt',
        'Content-Type: application/octet-stream',
        '',
        'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -232,7 +417,16 @@ var tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     expected: [
-      ['file', 'file', 26, 0, 'näme.txt', '7bit', 'application/octet-stream']
+      { type: 'file',
+        name: 'file',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: 'näme.txt',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+      },
     ],
     what: 'Unicode filenames'
   },
@@ -247,7 +441,7 @@ var tests = [
     ],
     boundary: 'asdasdasdasd',
     expected: [],
-    shouldError: 'Unexpected end of multipart data',
+    shouldError: 'Malformed part header',
     what: 'Stopped mid-header'
   },
   { source: [
@@ -261,98 +455,516 @@ var tests = [
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [
-      ['field', 'cont', '{}', false, false, '7bit', 'application/json']
+      { type: 'field',
+        name: 'cont',
+        val: '{}',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'application/json',
+        },
+      },
     ],
     what: 'content-type for fields'
   },
   { source: [
-      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--\r\n'
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--',
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
     expected: [],
     what: 'empty form'
-  }
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name=upload_file_0; filename="1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       'Content-Transfer-Encoding: binary',
+       '',
+       '',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.alloc(0),
+        info: {
+          filename: '1k_a.dat',
+          encoding: 'binary',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+        err: 'Unexpected end of form',
+      },
+    ],
+    shouldError: 'Unexpected end of form',
+    what: 'Stopped mid-file #1'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name=upload_file_0; filename="1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'a',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('a'),
+        info: {
+          filename: '1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false,
+        err: 'Unexpected end of form',
+      },
+    ],
+    shouldError: 'Unexpected end of form',
+    what: 'Stopped mid-file #2'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="notes.txt"',
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'a',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('a'),
+        info: {
+          filename: 'notes.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
+    what: 'Text file with charset'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="notes.txt"',
+       'Content-Type: ',
+       ' text/plain; charset=utf8',
+       '',
+       'a',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('a'),
+        info: {
+          filename: 'notes.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
+    what: 'Folded header value'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'a',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [],
+    what: 'No Content-Disposition'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'a'.repeat(64 * 1024),
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="notes.txt"',
+       'Content-Type: ',
+       ' text/plain; charset=utf8',
+       '',
+       'bc',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      fieldSize: Infinity,
+    },
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('bc'),
+        info: {
+          filename: 'notes.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
+    events: [ 'file' ],
+    what: 'Skip field parts if no listener'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'a',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="notes.txt"',
+       'Content-Type: ',
+       ' text/plain; charset=utf8',
+       '',
+       'bc',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      parts: 1,
+    },
+    expected: [
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'a',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      'partsLimit',
+    ],
+    what: 'Parts limit'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'a',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_1"',
+       '',
+       'b',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      fields: 1,
+    },
+    expected: [
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'a',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      'fieldsLimit',
+    ],
+    what: 'Fields limit'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="notes.txt"',
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'ab',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="notes2.txt"',
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'cd',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
+      files: 1,
+    },
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ab'),
+        info: {
+          filename: 'notes.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+      'filesLimit',
+    ],
+    what: 'Files limit'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + `name="upload_file_0"; filename="${'a'.repeat(64 * 1024)}.txt"`,
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'ab',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_1"; filename="notes2.txt"',
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'cd',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [],
+    shouldError: 'Malformed part header',
+    what: 'Oversized part header'
+  },
 ];
 
-function next() {
-  if (t === tests.length)
-    return;
+for (const test of tests) {
+  active.set(test, 1);
 
-  var v = tests[t];
+  const { what, boundary, events, limits, preservePath } = test;
+  const bb = busboy({
+    limits,
+    preservePath,
+    headers: {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+    }
+  });
+  const results = [];
+  let errors = [];
 
-  var busboy = new Busboy({
-        limits: v.limits,
-        preservePath: v.preservePath,
-        headers: {
-          'content-type': 'multipart/form-data; boundary=' + v.boundary
-        }
-      }),
-      finishes = 0,
-      results = [];
-
-  if (v.events === undefined || v.events.indexOf('field') > -1) {
-    busboy.on('field', function(key, val, keyTrunc, valTrunc, encoding, contype) {
-      results.push(['field', key, val, keyTrunc, valTrunc, encoding, contype]);
+  if (events === undefined || events.includes('field')) {
+    bb.on('field', (name, val, info) => {
+      results.push({ type: 'field', name, val, info });
     });
   }
-  if (v.events === undefined || v.events.indexOf('file') > -1) {
-    busboy.on('file', function(fieldname, stream, filename, encoding, mimeType) {
-      var nb = 0,
-          info = ['file',
-                  fieldname,
-                  nb,
-                  0,
-                  filename,
-                  encoding,
-                  mimeType];
-      results.push(info);
-      stream.on('data', function(d) {
+
+  if (events === undefined || events.includes('file')) {
+    bb.on('file', (name, stream, info) => {
+      const data = [];
+      let nb = 0;
+      const file = {
+        type: 'file',
+        name,
+        data: null,
+        info,
+        limited: false,
+      };
+      results.push(file);
+      stream.on('data', (d) => {
+        data.push(d);
         nb += d.length;
-      }).on('limit', function() {
-        ++info[3];
-      }).on('end', function() {
-        info[2] = nb;
-        if (stream.truncated)
-          ++info[3];
+      }).on('limit', () => {
+        file.limited = true;
+      }).on('close', () => {
+        file.data = Buffer.concat(data, nb);
+        assert.strictEqual(stream.truncated, file.limited);
+      }).once('error', (err) => {
+        file.err = err.message;
       });
     });
   }
-  busboy.on('finish', function() {
-    assert(finishes++ === 0, makeMsg(v.what, 'finish emitted multiple times'));
-    assert.deepEqual(results.length,
-                     v.expected.length,
-                     makeMsg(v.what, 'Parsed result count mismatch. Saw '
-                                     + results.length
-                                     + '. Expected: ' + v.expected.length));
 
-    results.forEach(function(result, i) {
-      assert.deepEqual(result,
-                       v.expected[i],
-                       makeMsg(v.what,
-                               'Result mismatch:\nParsed: ' + inspect(result)
-                               + '\nExpected: ' + inspect(v.expected[i]))
-                      );
+  bb.on('error', (err) => {
+    errors.push(err);
+  });
+
+  bb.on('partsLimit', () => {
+    results.push('partsLimit');
+  });
+
+  bb.on('filesLimit', () => {
+    results.push('filesLimit');
+  });
+
+  bb.on('fieldsLimit', () => {
+    results.push('fieldsLimit');
+  });
+
+  bb.on('close', () => {
+    active.delete(test);
+
+    if (test.shouldError) {
+      assert(
+        errors.length !== 0,
+        `[${what}] Did not see expected error of "${test.shouldError}"`
+      );
+      assert(
+        errors.length === 1,
+        `[${what}] Unexpected multiple errors: `
+          + errors.map((err) => err.stack).join('\n----\n')
+      );
+      assert(
+        test.shouldError === errors[0].message,
+        `[${what}] Unexpected error: ${errors[0].stack}`
+      );
+    } else {
+      errors = errors.map((err) => err.stack).join('\n----\n');
+      assert(errors.length === 0, `[${what}] Unexpected error(s): ${errors}`);
+    }
+
+    assert.deepStrictEqual(
+      results,
+      test.expected,
+      `[${what}] Results mismatch.\n`
+        + `Parsed: ${inspect(results)}\n`
+        + `Expected: ${inspect(test.expected)}`
+    );
+  });
+
+  for (const src of test.source) {
+    const buf = (typeof src === 'string' ? Buffer.from(src, 'utf8') : src);
+    bb.write(buf);
+  }
+  bb.end();
+}
+
+// Byte-by-byte versions
+for (let test of tests) {
+  test = { ...test };
+  test.what += ' (byte-by-byte)';
+  active.set(test, 1);
+
+  const { what, boundary, events, limits, preservePath } = test;
+  const bb = busboy({
+    limits,
+    preservePath,
+    headers: {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+    }
+  });
+  const results = [];
+  let errors = [];
+
+  if (events === undefined || events.includes('field')) {
+    bb.on('field', (name, val, info) => {
+      results.push({ type: 'field', name, val, info });
     });
-    ++t;
-    next();
-  }).on('error', function(err) {
-    if (!v.shouldError || v.shouldError !== err.message)
-      assert(false, makeMsg(v.what, 'Unexpected error: ' + err));
+  }
+
+  if (events === undefined || events.includes('file')) {
+    bb.on('file', (name, stream, info) => {
+      const data = [];
+      let nb = 0;
+      const file = {
+        type: 'file',
+        name,
+        data: null,
+        info,
+        limited: false,
+      };
+      results.push(file);
+      stream.on('data', (d) => {
+        data.push(d);
+        nb += d.length;
+      }).on('limit', () => {
+        file.limited = true;
+      }).on('close', () => {
+        file.data = Buffer.concat(data, nb);
+        assert.strictEqual(stream.truncated, file.limited);
+      }).once('error', (err) => {
+        file.err = err.message;
+      });
+    });
+  }
+
+  bb.on('error', (err) => {
+    errors.push(err);
   });
 
-  v.source.forEach(function(s) {
-    busboy.write(Buffer.from(s, 'utf8'), EMPTY_FN);
+  bb.on('partsLimit', () => {
+    results.push('partsLimit');
   });
-  busboy.end();
-}
-next();
 
-function makeMsg(what, msg) {
-  return '[' + group + what + ']: ' + msg;
+  bb.on('filesLimit', () => {
+    results.push('filesLimit');
+  });
+
+  bb.on('fieldsLimit', () => {
+    results.push('fieldsLimit');
+  });
+
+  bb.on('close', () => {
+    active.delete(test);
+
+    if (test.shouldError) {
+      assert(
+        errors.length !== 0,
+        `[${what}] Did not see expected error of "${test.shouldError}"`
+      );
+      assert(
+        errors.length === 1,
+        `[${what}] Unexpected multiple errors: `
+          + errors.map((err) => err.stack).join('\n----\n')
+      );
+      assert(
+        test.shouldError === errors[0].message,
+        `[${what}] Unexpected error: ${errors[0].stack}`
+      );
+    } else {
+      errors = errors.map((err) => err.stack).join('\n----\n');
+      assert(errors.length === 0, `[${what}] Unexpected error(s): ${errors}`);
+    }
+
+    assert.deepStrictEqual(
+      results,
+      test.expected,
+      `[${what}] Results mismatch.\n`
+        + `Parsed: ${inspect(results)}\n`
+        + `Expected: ${inspect(test.expected)}`
+    );
+  });
+
+  for (const src of test.source) {
+    const buf = (typeof src === 'string' ? Buffer.from(src, 'utf8') : src);
+    for (let i = 0; i < buf.length; ++i)
+      bb.write(buf.slice(i, i + 1));
+  }
+  bb.end();
 }
 
-process.on('exit', function() {
-  assert(t === tests.length,
-         makeMsg('_exit',
-                 'Only finished ' + t + '/' + tests.length + ' tests'));
-});
+{
+  let exception = false;
+  process.once('uncaughtException', (ex) => {
+    exception = true;
+    throw ex;
+  });
+  process.on('exit', () => {
+    if (exception || active.size === 0)
+      return;
+    process.exitCode = 1;
+    console.error('==========================');
+    console.error(`${active.size} test(s) did not finish:`);
+    console.error('==========================');
+    console.error(Array.from(active.keys()).map((v) => v.what).join('\n'));
+  });
+}

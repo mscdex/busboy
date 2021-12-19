@@ -1,64 +1,226 @@
-var Busboy = require('..');
+'use strict';
 
-var path = require('path'),
-    inspect = require('util').inspect,
-    assert = require('assert');
+const assert = require('assert');
+const { transcode } = require('buffer');
+const { inspect } = require('util');
 
-var EMPTY_FN = function() {};
+const busboy = require('..');
 
-var t = 0,
-    group = path.basename(__filename, '.js') + '/';
+const active = new Map();
 
-var tests = [
+const tests = [
   { source: ['foo'],
-    expected: [['foo', '', false, false]],
+    expected: [
+      ['foo',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Unassigned value'
   },
   { source: ['foo=bar'],
-    expected: [['foo', 'bar', false, false]],
+    expected: [
+      ['foo',
+       'bar',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Assigned value'
   },
   { source: ['foo&bar=baz'],
-    expected: [['foo', '', false, false],
-               ['bar', 'baz', false, false]],
+    expected: [
+      ['foo',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['bar',
+       'baz',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Unassigned and assigned value'
   },
   { source: ['foo=bar&baz'],
-    expected: [['foo', 'bar', false, false],
-               ['baz', '', false, false]],
+    expected: [
+      ['foo',
+       'bar',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['baz',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Assigned and unassigned value'
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['foo', 'bar', false, false],
-               ['baz', 'bla', false, false]],
+    expected: [
+      ['foo',
+       'bar',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['baz',
+       'bla',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Two assigned values'
   },
   { source: ['foo&bar'],
-    expected: [['foo', '', false, false],
-               ['bar', '', false, false]],
+    expected: [
+      ['foo',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['bar',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Two unassigned values'
   },
   { source: ['foo&bar&'],
-    expected: [['foo', '', false, false],
-               ['bar', '', false, false]],
+    expected: [
+      ['foo',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['bar',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Two unassigned values and ampersand'
   },
-  { source: ['foo=bar+baz%2Bquux'],
-    expected: [['foo', 'bar baz+quux', false, false]],
-    what: 'Assigned value with (plus) space'
+  { source: ['foo+1=bar+baz%2Bquux'],
+    expected: [
+      ['foo 1',
+       'bar baz+quux',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
+    what: 'Assigned key and value with (plus) space'
   },
   { source: ['foo=bar%20baz%21'],
-    expected: [['foo', 'bar baz!', false, false]],
+    expected: [
+      ['foo',
+       'bar baz!',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Assigned value with encoded bytes'
   },
   { source: ['foo%20bar=baz%20bla%21'],
-    expected: [['foo bar', 'baz bla!', false, false]],
+    expected: [
+      ['foo bar',
+       'baz bla!',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Assigned value with encoded bytes #2'
   },
   { source: ['foo=bar%20baz%21&num=1000'],
-    expected: [['foo', 'bar baz!', false, false],
-               ['num', '1000', false, false]],
+    expected: [
+      ['foo',
+       'bar baz!',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['num',
+       '1000',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Two assigned values, one with encoded bytes'
+  },
+  { source: [
+      Array.from(transcode(Buffer.from('foo'), 'utf8', 'utf16le')).map(
+        (n) => `%${n.toString(16).padStart(2, '0')}`
+      ).join(''),
+      '=',
+      Array.from(transcode(Buffer.from('😀!'), 'utf8', 'utf16le')).map(
+        (n) => `%${n.toString(16).padStart(2, '0')}`
+      ).join(''),
+    ],
+    expected: [
+      ['foo',
+       '😀!',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'UTF-16LE',
+         mimeType: 'text/plain' },
+      ],
+    ],
+    charset: 'UTF-16LE',
+    what: 'Encoded value with multi-byte charset'
+  },
+  { source: [
+      'foo=<',
+      Array.from(transcode(Buffer.from('©:^þ'), 'utf8', 'latin1')).map(
+        (n) => `%${n.toString(16).padStart(2, '0')}`
+      ).join(''),
+    ],
+    expected: [
+      ['foo',
+       '<©:^þ',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'ISO-8859-1',
+         mimeType: 'text/plain' },
+      ],
+    ],
+    charset: 'ISO-8859-1',
+    what: 'Encoded value with single-byte, ASCII-compatible, non-UTF8 charset'
   },
   { source: ['foo=bar&baz=bla'],
     expected: [],
@@ -66,43 +228,135 @@ var tests = [
     limits: { fields: 0 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['foo', 'bar', false, false]],
+    expected: [
+      ['foo',
+       'bar',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: one field',
     limits: { fields: 1 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['foo', 'bar', false, false],
-               ['baz', 'bla', false, false]],
+    expected: [
+      ['foo',
+       'bar',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['baz',
+       'bla',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: field part lengths match limits',
     limits: { fieldNameSize: 3, fieldSize: 3 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['fo', 'bar', true, false],
-               ['ba', 'bla', true, false]],
+    expected: [
+      ['fo',
+       'bar',
+       { nameTruncated: true,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['ba',
+       'bla',
+       { nameTruncated: true,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: truncated field name',
     limits: { fieldNameSize: 2 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['foo', 'ba', false, true],
-               ['baz', 'bl', false, true]],
+    expected: [
+      ['foo',
+       'ba',
+       { nameTruncated: false,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['baz',
+       'bl',
+       { nameTruncated: false,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: truncated field value',
     limits: { fieldSize: 2 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['fo', 'ba', true, true],
-               ['ba', 'bl', true, true]],
+    expected: [
+      ['fo',
+       'ba',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['ba',
+       'bl',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: truncated field name and value',
     limits: { fieldNameSize: 2, fieldSize: 2 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['fo', '', true, true],
-               ['ba', '', true, true]],
+    expected: [
+      ['fo',
+       '',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['ba',
+       '',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: truncated field name and zero value limit',
     limits: { fieldNameSize: 2, fieldSize: 0 }
   },
   { source: ['foo=bar&baz=bla'],
-    expected: [['', '', true, true],
-               ['', '', true, true]],
+    expected: [
+      ['',
+       '',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+      ['',
+       '',
+       { nameTruncated: true,
+         valueTruncated: true,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Limits: truncated zero field name and zero value limit',
     limits: { fieldNameSize: 0, fieldSize: 0 }
   },
@@ -115,7 +369,15 @@ var tests = [
     what: 'Many ampersands'
   },
   { source: ['='],
-    expected: [['', '', false, false]],
+    expected: [
+      ['',
+       '',
+       { nameTruncated: false,
+         valueTruncated: false,
+         encoding: 'utf-8',
+         mimeType: 'text/plain' },
+      ],
+    ],
     what: 'Assigned value, empty name and value'
   },
   { source: [''],
@@ -124,60 +386,103 @@ var tests = [
   },
 ];
 
-function next() {
-  if (t === tests.length)
-    return;
+for (const test of tests) {
+  active.set(test, 1);
 
-  var v = tests[t];
-
-  var busboy = new Busboy({
-        limits: v.limits,
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded; charset=utf-8'
-        }
-      }),
-      finishes = 0,
-      results = [];
-
-  busboy.on('field', function(key, val, keyTrunc, valTrunc) {
-    results.push([key, val, keyTrunc, valTrunc]);
+  const { what } = test;
+  const charset = test.charset || 'utf-8';
+  const bb = busboy({
+    limits: test.limits,
+    headers: {
+      'content-type': `application/x-www-form-urlencoded; charset=${charset}`,
+    },
   });
-  busboy.on('file', function() {
-    throw new Error(makeMsg(v.what, 'Unexpected file'));
-  });
-  busboy.on('finish', function() {
-    assert(finishes++ === 0, makeMsg(v.what, 'finish emitted multiple times'));
-    assert.deepEqual(results.length,
-                     v.expected.length,
-                     makeMsg(v.what, 'Parsed result count mismatch. Saw '
-                                     + results.length
-                                     + '. Expected: ' + v.expected.length));
+  const results = [];
 
-    var i = 0;
-    results.forEach(function(result) {
-      assert.deepEqual(result,
-                       v.expected[i],
-                       makeMsg(v.what,
-                               'Result mismatch:\nParsed: ' + inspect(result)
-                               + '\nExpected: ' + inspect(v.expected[i]))
-                      );
-      ++i;
-    });
-    ++t;
-    next();
+  bb.on('field', (key, val, info) => {
+    results.push([key, val, info]);
   });
 
-  v.source.forEach(function(s) {
-    busboy.write(Buffer.from(s, 'utf8'), EMPTY_FN);
+  bb.on('file', () => {
+    throw new Error(`[${what}] Unexpected file`);
   });
-  busboy.end();
-}
-next();
 
-function makeMsg(what, msg) {
-  return '[' + group + what + ']: ' + msg;
+  bb.on('close', () => {
+    active.delete(test);
+
+    assert.deepStrictEqual(
+      results,
+      test.expected,
+      `[${what}] Results mismatch.\n`
+        + `Parsed: ${inspect(results)}\n`
+        + `Expected: ${inspect(test.expected)}`
+    );
+  });
+
+  for (const src of test.source) {
+    const buf = (typeof src === 'string' ? Buffer.from(src, 'utf8') : src);
+    bb.write(buf);
+  }
+  bb.end();
 }
 
-process.on('exit', function() {
-  assert(t === tests.length, makeMsg('_exit', 'Only finished ' + t + '/' + tests.length + ' tests'));
-});
+// Byte-by-byte versions
+for (let test of tests) {
+  test = { ...test };
+  test.what += ' (byte-by-byte)';
+  active.set(test, 1);
+
+  const { what } = test;
+  const charset = test.charset || 'utf-8';
+  const bb = busboy({
+    limits: test.limits,
+    headers: {
+      'content-type': `application/x-www-form-urlencoded; charset="${charset}"`,
+    },
+  });
+  const results = [];
+
+  bb.on('field', (key, val, info) => {
+    results.push([key, val, info]);
+  });
+
+  bb.on('file', () => {
+    throw new Error(`[${what}] Unexpected file`);
+  });
+
+  bb.on('close', () => {
+    active.delete(test);
+
+    assert.deepStrictEqual(
+      results,
+      test.expected,
+      `[${what}] Results mismatch.\n`
+        + `Parsed: ${inspect(results)}\n`
+        + `Expected: ${inspect(test.expected)}`
+    );
+  });
+
+  for (const src of test.source) {
+    const buf = (typeof src === 'string' ? Buffer.from(src, 'utf8') : src);
+    for (let i = 0; i < buf.length; ++i)
+      bb.write(buf.slice(i, i + 1));
+  }
+  bb.end();
+}
+
+{
+  let exception = false;
+  process.once('uncaughtException', (ex) => {
+    exception = true;
+    throw ex;
+  });
+  process.on('exit', () => {
+    if (exception || active.size === 0)
+      return;
+    process.exitCode = 1;
+    console.error('==========================');
+    console.error(`${active.size} test(s) did not finish:`);
+    console.error('==========================');
+    console.error(Array.from(active.keys()).map((v) => v.what).join('\n'));
+  });
+}
