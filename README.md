@@ -2,6 +2,7 @@
 
 A node.js module for parsing incoming HTML form data.
 
+Changes (breaking or otherwise) in v1.0.0 can be found [here](https://github.com/mscdex/busboy/issues/266).
 
 # Requirements
 
