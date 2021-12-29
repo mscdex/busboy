@@ -127,35 +127,35 @@ http.createServer((req, res) => {
 
 **( _function_ )**(< _object_ >config) - Creates and returns a new _Writable_ form parser stream.
 
-    * Valid `config` properties:
+* Valid `config` properties:
 
-        * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
+    * **headers** - _object_ - These are the HTTP headers of the incoming request, which are used by individual parsers.
 
-        * **highWaterMark** - _integer_ - highWaterMark to use for the parser stream. **Default:** node's _stream.Writable_ default.
+    * **highWaterMark** - _integer_ - highWaterMark to use for the parser stream. **Default:** node's _stream.Writable_ default.
 
-        * **fileHwm** - _integer_ - highWaterMark to use for individual file streams. **Default:** node's _stream.Readable_ default.
+    * **fileHwm** - _integer_ - highWaterMark to use for individual file streams. **Default:** node's _stream.Readable_ default.
 
-        * **defCharset** - _string_ - Default character set to use when one isn't defined. **Default:** `'utf8'`.
+    * **defCharset** - _string_ - Default character set to use when one isn't defined. **Default:** `'utf8'`.
 
-        * **preservePath** - _boolean_ - If paths in filenames from file parts in a `'multipart/form-data'` request shall be preserved. **Default:** `false`.
+    * **preservePath** - _boolean_ - If paths in filenames from file parts in a `'multipart/form-data'` request shall be preserved. **Default:** `false`.
 
-        * **limits** - _object_ - Various limits on incoming data. Valid properties are:
+    * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
-            * **fieldNameSize** - _integer_ - Max field name size (in bytes). **Default:** `100`.
+        * **fieldNameSize** - _integer_ - Max field name size (in bytes). **Default:** `100`.
 
-            * **fieldSize** - _integer_ - Max field value size (in bytes). **Default:** `1048576` (1MB).
+        * **fieldSize** - _integer_ - Max field value size (in bytes). **Default:** `1048576` (1MB).
 
-            * **fields** - _integer_ - Max number of non-file fields. **Default:** `Infinity`.
+        * **fields** - _integer_ - Max number of non-file fields. **Default:** `Infinity`.
 
-            * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
+        * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
 
-            * **files** - _integer_ - For multipart forms, the max number of file fields. **Default:** `Infinity`.
+        * **files** - _integer_ - For multipart forms, the max number of file fields. **Default:** `Infinity`.
 
-            * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files). **Default:** `Infinity`.
+        * **parts** - _integer_ - For multipart forms, the max number of parts (fields + files). **Default:** `Infinity`.
 
-            * **headerPairs** - _integer_ - For multipart forms, the max number of header key-value pairs to parse. **Default:** `2000` (same as node's http module).
+        * **headerPairs** - _integer_ - For multipart forms, the max number of header key-value pairs to parse. **Default:** `2000` (same as node's http module).
 
-    This function can throw exceptions if there is something wrong with the values in `config`. For example, if the Content-Type in `headers` is missing entirely, is not a supported type, or is missing the boundary for `'multipart/form-data'` requests.
+This function can throw exceptions if there is something wrong with the values in `config`. For example, if the Content-Type in `headers` is missing entirely, is not a supported type, or is missing the boundary for `'multipart/form-data'` requests.
 
 ## (Special) Parser stream events
 
