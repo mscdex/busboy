@@ -19,7 +19,7 @@ Changes (breaking or otherwise) in v1.0.0 can be found [here](https://github.com
 * Parsing (multipart) with default options:
 
 ```js
-const http = require('http'),
+const http = require('http');
 
 const busboy = require('busboy');
 
