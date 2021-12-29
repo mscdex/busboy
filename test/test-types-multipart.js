@@ -746,13 +746,41 @@ const tests = [
     shouldError: 'Malformed part header',
     what: 'Oversized part header'
   },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + `name="upload_file_0"; filename="notes.txt"`,
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'a'.repeat(31) + '\r',
+      ].join('\r\n'),
+      'b'.repeat(40),
+      '\r\n-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    fileHwm: 32,
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('a'.repeat(31) + '\r' + 'b'.repeat(40)),
+        info: {
+          filename: 'notes.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
+    what: 'Lookbehind data should not stall file streams'
+  },
 ];
 
 for (const test of tests) {
   active.set(test, 1);
 
-  const { what, boundary, events, limits, preservePath } = test;
+  const { what, boundary, events, limits, preservePath, fileHwm } = test;
   const bb = busboy({
+    fileHwm,
     limits,
     preservePath,
     headers: {
@@ -854,8 +882,9 @@ for (let test of tests) {
   test.what += ' (byte-by-byte)';
   active.set(test, 1);
 
-  const { what, boundary, events, limits, preservePath } = test;
+  const { what, boundary, events, limits, preservePath, fileHwm } = test;
   const bb = busboy({
+    fileHwm,
     limits,
     preservePath,
     headers: {
