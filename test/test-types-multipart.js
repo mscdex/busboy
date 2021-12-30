@@ -132,8 +132,9 @@ const tests = [
       ''
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
-    expected: [],
-    shouldError: 'Unexpected end of form',
+    expected: [
+      { error: 'Unexpected end of form' },
+    ],
     what: 'No fields and no files'
   },
   { source: [
@@ -440,8 +441,10 @@ const tests = [
       ].join(':)')
     ],
     boundary: 'asdasdasdasd',
-    expected: [],
-    shouldError: 'Malformed part header',
+    expected: [
+      { error: 'Malformed part header' },
+      { error: 'Unexpected end of form' },
+    ],
     what: 'Stopped mid-header'
   },
   { source: [
@@ -498,8 +501,8 @@ const tests = [
         limited: false,
         err: 'Unexpected end of form',
       },
+      { error: 'Unexpected end of form' },
     ],
-    shouldError: 'Unexpected end of form',
     what: 'Stopped mid-file #1'
   },
   { source: [
@@ -524,8 +527,8 @@ const tests = [
         limited: false,
         err: 'Unexpected end of form',
       },
+      { error: 'Unexpected end of form' },
     ],
-    shouldError: 'Unexpected end of form',
     what: 'Stopped mid-file #2'
   },
   { source: [
@@ -742,8 +745,19 @@ const tests = [
       ].join('\r\n')
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-    expected: [],
-    shouldError: 'Malformed part header',
+    expected: [
+      { error: 'Malformed part header' },
+      { type: 'file',
+        name: 'upload_file_1',
+        data: Buffer.from('cd'),
+        info: {
+          filename: 'notes2.txt',
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
     what: 'Oversized part header'
   },
   { source: [
@@ -788,7 +802,6 @@ for (const test of tests) {
     }
   });
   const results = [];
-  let errors = [];
 
   if (events === undefined || events.includes('field')) {
     bb.on('field', (name, val, info) => {
@@ -823,7 +836,7 @@ for (const test of tests) {
   }
 
   bb.on('error', (err) => {
-    errors.push(err);
+    results.push({ error: err.message });
   });
 
   bb.on('partsLimit', () => {
@@ -840,25 +853,6 @@ for (const test of tests) {
 
   bb.on('close', () => {
     active.delete(test);
-
-    if (test.shouldError) {
-      assert(
-        errors.length !== 0,
-        `[${what}] Did not see expected error of "${test.shouldError}"`
-      );
-      assert(
-        errors.length === 1,
-        `[${what}] Unexpected multiple errors: `
-          + errors.map((err) => err.stack).join('\n----\n')
-      );
-      assert(
-        test.shouldError === errors[0].message,
-        `[${what}] Unexpected error: ${errors[0].stack}`
-      );
-    } else {
-      errors = errors.map((err) => err.stack).join('\n----\n');
-      assert(errors.length === 0, `[${what}] Unexpected error(s): ${errors}`);
-    }
 
     assert.deepStrictEqual(
       results,
@@ -892,7 +886,6 @@ for (let test of tests) {
     }
   });
   const results = [];
-  let errors = [];
 
   if (events === undefined || events.includes('field')) {
     bb.on('field', (name, val, info) => {
@@ -927,7 +920,7 @@ for (let test of tests) {
   }
 
   bb.on('error', (err) => {
-    errors.push(err);
+    results.push({ error: err.message });
   });
 
   bb.on('partsLimit', () => {
@@ -944,25 +937,6 @@ for (let test of tests) {
 
   bb.on('close', () => {
     active.delete(test);
-
-    if (test.shouldError) {
-      assert(
-        errors.length !== 0,
-        `[${what}] Did not see expected error of "${test.shouldError}"`
-      );
-      assert(
-        errors.length === 1,
-        `[${what}] Unexpected multiple errors: `
-          + errors.map((err) => err.stack).join('\n----\n')
-      );
-      assert(
-        test.shouldError === errors[0].message,
-        `[${what}] Unexpected error: ${errors[0].stack}`
-      );
-    } else {
-      errors = errors.map((err) => err.stack).join('\n----\n');
-      assert(errors.length === 0, `[${what}] Unexpected error(s): ${errors}`);
-    }
 
     assert.deepStrictEqual(
       results,
