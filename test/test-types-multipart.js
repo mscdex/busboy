@@ -787,6 +787,63 @@ const tests = [
     ],
     what: 'Lookbehind data should not stall file streams'
   },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + `name="upload_file_0"; filename="${'a'.repeat(8 * 1024)}.txt"`,
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'ab',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + `name="upload_file_1"; filename="${'b'.repeat(8 * 1024)}.txt"`,
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'cd',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + `name="upload_file_2"; filename="${'c'.repeat(8 * 1024)}.txt"`,
+       'Content-Type: text/plain; charset=utf8',
+       '',
+       'ef',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ab'),
+        info: {
+          filename: `${'a'.repeat(8 * 1024)}.txt`,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_1',
+        data: Buffer.from('cd'),
+        info: {
+          filename: `${'b'.repeat(8 * 1024)}.txt`,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+      { type: 'file',
+        name: 'upload_file_2',
+        data: Buffer.from('ef'),
+        info: {
+          filename: `${'c'.repeat(8 * 1024)}.txt`,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+        limited: false,
+      },
+    ],
+    what: 'Header size limit should be per part'
+  },
 ];
 
 for (const test of tests) {
