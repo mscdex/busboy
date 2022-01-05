@@ -27,10 +27,10 @@ aimed at addressing long-standing issues with it.
 
 Benchmark (Mean time for 500 Kb payload, 2000 cycles, 1000 cycle warmup):
 
-| Library               | Mean time in nanoseconds (less is better) |
-|-----------------------|-------------------------------------------|
-| busboy 0.31           | `340114`                                  |
-| @fastify/busboy 1.0.0 | `270984`                                  |
+| Library               | Version | Mean time in nanoseconds (less is better) |
+|-----------------------|---------|-------------------------------------------|
+| busboy                | 0.3.1   | `340114`                                  |
+| @fastify/busboy       | 1.0.0   | `270984`                                  |
 
 [Changelog](https://github.com/fastify/busboy/blob/master/CHANGELOG.md) since busboy 0.31.
 
