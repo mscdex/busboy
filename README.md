@@ -28,12 +28,12 @@ http.createServer((req, res) => {
     console.log('POST request');
     const bb = busboy({ headers: req.headers });
     bb.on('file', (name, file, info) => {
-      const { filename, encoding, mime } = info;
+      const { filename, encoding, mimeType } = info;
       console.log(
-        `File [${name}]: filename: %j, encoding: %j, mime: %j`,
+        `File [${name}]: filename: %j, encoding: %j, mimeType: %j`,
         filename,
         encoding,
-        mime
+        mimeType
       );
       file.on('data', (data) => {
         console.log(`File [${name}] got ${data.length} bytes`);
