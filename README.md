@@ -101,7 +101,7 @@ http.createServer((req, res) => {
   if (req.method === 'POST') {
     const bb = busboy({ headers: req.headers });
     bb.on('file', (name, file, info) => {
-      const saveTo = path.join(os.tmpDir(), `busboy-upload-${random()}`);
+      const saveTo = path.join(os.tmpdir(), `busboy-upload-${random()}`);
       file.pipe(fs.createWriteStream(saveTo));
     });
     bb.on('close', () => {
