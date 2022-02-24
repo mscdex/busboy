@@ -844,6 +844,29 @@ const tests = [
     ],
     what: 'Header size limit should be per part'
   },
+  { source: [
+      '\r\n--d1bf46b3-aa33-4061-b28d-6c5ced8b08ee\r\n',
+      'Content-Type: application/gzip\r\n'
+        + 'Content-Encoding: gzip\r\n'
+        + 'Content-Disposition: form-data; name=batch-1; filename=batch-1'
+        + '\r\n\r\n',
+      '\r\n--d1bf46b3-aa33-4061-b28d-6c5ced8b08ee--',
+    ],
+    boundary: 'd1bf46b3-aa33-4061-b28d-6c5ced8b08ee',
+    expected: [
+      { type: 'file',
+        name: 'batch-1',
+        data: Buffer.alloc(0),
+        info: {
+          filename: 'batch-1',
+          encoding: '7bit',
+          mimeType: 'application/gzip',
+        },
+        limited: false,
+      },
+    ],
+    what: 'Empty part'
+  },
 ];
 
 for (const test of tests) {
