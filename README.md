@@ -137,6 +137,8 @@ http.createServer((req, res) => {
 
     * **defCharset** - _string_ - Default character set to use when one isn't defined. **Default:** `'utf8'`.
 
+    * **defParamCharset** - _string_ - For multipart forms, the default character set to use for values of part header parameters (e.g. filename) that are not extended parameters (that contain an explicit charset). **Default:** `'latin1'`.
+
     * **preservePath** - _boolean_ - If paths in filenames from file parts in a `'multipart/form-data'` request shall be preserved. **Default:** `false`.
 
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
