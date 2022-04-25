@@ -48,7 +48,7 @@
     "nyc": "^15.1.0",
     "photofinish": "^1.8.0",
     "snazzy": "^9.0.0",
-    "standard": "^16.0.4",
+    "standard": "^17.0.0",
     "tsd": "^0.20.0",
     "typescript": "^4.5.2"
   },
