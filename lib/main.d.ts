@@ -6,9 +6,10 @@
 
 import * as http from 'http';
 import { Readable, Writable } from 'stream';
+export { Dicer } from "../deps/dicer/lib/dicer";
 
 export const Busboy: BusboyConstructor;
-export default Busboy
+export default Busboy;
 
 export interface BusboyConfig {
     /**
