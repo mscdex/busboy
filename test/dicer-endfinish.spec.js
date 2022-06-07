@@ -21,7 +21,7 @@ describe('dicer-endfinish', () => {
     let firedEnd = false
     let firedFinish = false
 
-    const dicer = new Dicer({ boundary: boundary })
+    const dicer = new Dicer({ boundary })
     dicer.on('part', partListener)
     dicer.on('finish', finishListener)
     dicer.write(writePart + writeSep)
@@ -55,7 +55,7 @@ describe('dicer-endfinish', () => {
     let dicer2 = null
 
     function test2 () {
-      dicer2 = new Dicer({ boundary: boundary })
+      dicer2 = new Dicer({ boundary })
       dicer2.on('part', pausePartListener)
       dicer2.on('finish', pauseFinish)
       dicer2.write(writePart + writeSep, 'utf8', pausePartCallback)
