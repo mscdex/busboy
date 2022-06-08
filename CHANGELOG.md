@@ -2,9 +2,11 @@
 
 Major changes since the last busboy release (0.3.1):
 
-# 1.0.1 - TBD
+# 1.1.0 - 09 June, 2022
 
 * Fix potential ReDOS-Attack-Vector in Headerparser (#72)
+* Improve array parse performances (#69)
+* Export Dicer library (#90)
 
 # 1.0.0 - 04 December, 2021
 
