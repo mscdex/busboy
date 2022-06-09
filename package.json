@@ -32,7 +32,7 @@
     "test": "npm run test:mocha"
   },
   "engines": {
-    "node": ">=10.17.0"
+    "node": ">=14"
   },
   "dependencies": {
     "text-decoding": "^1.0.0"
