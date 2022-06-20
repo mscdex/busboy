@@ -38,7 +38,7 @@
     "text-decoding": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.0",
+    "@types/node": "^18.0.0",
     "busboy": "^1.0.0",
     "chai": "^4.3.4",
     "eslint": "^7.32.0",
