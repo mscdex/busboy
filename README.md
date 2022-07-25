@@ -42,7 +42,7 @@ Requirements
 Install
 =======
 
-    npm install @fastify/busboy
+    npm i @fastify/busboy
 
 
 Examples
