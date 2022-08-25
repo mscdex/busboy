@@ -196,6 +196,49 @@ const tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     limits: {
+      fileSize: 26,
+      fieldSize: 16
+    },
+    expected: [
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'super alpha file',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+      { type: 'file',
+        name: 'upload_file_0',
+        data: Buffer.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+        info: {
+          filename: '1k_a.dat',
+          encoding: '7bit',
+          mimeType: 'application/octet-stream',
+        },
+        limited: false
+      },
+    ],
+    what: 'Fields and files (exact limits)'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; name="file_name_0"',
+       '',
+       'super alpha file',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+       'Content-Disposition: form-data; '
+         + 'name="upload_file_0"; filename="1k_a.dat"',
+       'Content-Type: application/octet-stream',
+       '',
+       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+      ].join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: {
       files: 0
     },
     expected: [
