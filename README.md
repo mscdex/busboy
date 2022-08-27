@@ -149,7 +149,7 @@ http.createServer((req, res) => {
 
         * **fields** - _integer_ - Max number of non-file fields. **Default:** `Infinity`.
 
-        * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
+        * **fileSize** - _integer_, _function_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
 
         * **files** - _integer_ - For multipart forms, the max number of file fields. **Default:** `Infinity`.
 
