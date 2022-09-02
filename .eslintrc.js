@@ -9,11 +9,11 @@ module.exports = {
   extends: [
     'standard',
     'eslint:recommended',
-    'plugin:node/recommended'
+    'plugin:n/recommended'
   ],
   rules: {
     'no-unused-vars': [1, { vars: 'all', args: 'none' }],
-    'node/no-missing-require': 1,
+    'n/no-missing-require': 1,
     'no-constant-condition': 'off',
     'no-var': 'off',
     'no-redeclare': 1,
