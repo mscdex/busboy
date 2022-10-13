@@ -184,6 +184,8 @@ This function can throw exceptions if there is something wrong with the values i
 
     * `mimeType` - _string_ - The field's `'Content-Type'` value.
 
+* **complete**() - Emitted when all fields and files is success parsed.
+
 * **partsLimit**() - Emitted when the configured `limits.parts` limit has been reached. No more `'file'` or `'field'` events will be emitted.
 
 * **filesLimit**() - Emitted when the configured `limits.files` limit has been reached. No more `'file'` events will be emitted.

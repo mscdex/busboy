@@ -74,6 +74,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Fields and files'
   },
@@ -125,6 +126,7 @@ const tests = [
           mimeType: 'text/plain',
         },
       },
+      'complete',
     ],
     what: 'Fields only'
   },
@@ -177,6 +179,7 @@ const tests = [
         },
         limited: true,
       },
+      'complete',
     ],
     what: 'Fields and files (limits)'
   },
@@ -210,6 +213,7 @@ const tests = [
         },
       },
       'filesLimit',
+      'complete',
     ],
     what: 'Fields and files (limits: 0 files)'
   },
@@ -259,6 +263,7 @@ const tests = [
           mimeType: 'text/plain',
         },
       },
+      'complete',
     ],
     events: ['field'],
     what: 'Fields and (ignored) files'
@@ -317,6 +322,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Files with filenames containing paths'
   },
@@ -375,6 +381,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Paths to be preserved through the preservePath option'
   },
@@ -403,6 +410,7 @@ const tests = [
           mimeType: 'text/plain',
         },
       },
+      'complete',
     ],
     what: 'Empty content-type and empty content-disposition'
   },
@@ -428,6 +436,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Unicode filenames'
   },
@@ -468,6 +477,7 @@ const tests = [
           mimeType: 'application/json',
         },
       },
+      'complete',
     ],
     what: 'content-type for fields'
   },
@@ -475,7 +485,9 @@ const tests = [
       '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--',
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
-    expected: [],
+    expected: [
+      'complete',
+    ],
     what: 'empty form'
   },
   { source: [
@@ -553,6 +565,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Text file with charset'
   },
@@ -579,6 +592,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Folded header value'
   },
@@ -591,7 +605,9 @@ const tests = [
       ].join('\r\n')
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
-    expected: [],
+    expected: [
+      'complete',
+    ],
     what: 'No Content-Disposition'
   },
   { source: [
@@ -624,6 +640,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     events: [ 'file' ],
     what: 'Skip field parts if no listener'
@@ -659,6 +676,7 @@ const tests = [
         },
       },
       'partsLimit',
+      'complete',
     ],
     what: 'Parts limit'
   },
@@ -690,6 +708,7 @@ const tests = [
         },
       },
       'fieldsLimit',
+      'complete',
     ],
     what: 'Fields limit'
   },
@@ -725,6 +744,7 @@ const tests = [
         limited: false,
       },
       'filesLimit',
+      'complete',
     ],
     what: 'Files limit'
   },
@@ -757,6 +777,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Oversized part header'
   },
@@ -784,6 +805,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Lookbehind data should not stall file streams'
   },
@@ -841,6 +863,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Header size limit should be per part'
   },
@@ -864,6 +887,7 @@ const tests = [
         },
         limited: false,
       },
+      'complete',
     ],
     what: 'Empty part'
   },
@@ -915,6 +939,10 @@ for (const test of tests) {
     });
   }
 
+  bb.on('complete', () => {
+    results.push('complete');
+  });
+
   bb.on('error', (err) => {
     results.push({ error: err.message });
   });
@@ -933,7 +961,6 @@ for (const test of tests) {
 
   bb.on('close', () => {
     active.delete(test);
-
     assert.deepStrictEqual(
       results,
       test.expected,
@@ -999,6 +1026,10 @@ for (let test of tests) {
     });
   }
 
+  bb.on('complete', () => {
+    results.push('complete');
+  });
+
   bb.on('error', (err) => {
     results.push({ error: err.message });
   });
@@ -1017,7 +1048,6 @@ for (let test of tests) {
 
   bb.on('close', () => {
     active.delete(test);
-
     assert.deepStrictEqual(
       results,
       test.expected,
