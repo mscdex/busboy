@@ -1,3 +1,5 @@
+'use strict'
+
 const inherits = require('util').inherits
 const ReadableStream = require('stream').Readable
 

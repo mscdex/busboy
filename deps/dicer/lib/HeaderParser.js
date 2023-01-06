@@ -1,6 +1,8 @@
+'use strict'
+
 const EventEmitter = require('events').EventEmitter
 const inherits = require('util').inherits
-const getLimit = require('../../../lib/utils').getLimit
+const getLimit = require('../../../lib/utils/getLimit')
 
 const StreamSearch = require('../../streamsearch/sbmh')
 

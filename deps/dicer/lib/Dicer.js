@@ -1,3 +1,5 @@
+'use strict'
+
 const WritableStream = require('stream').Writable
 const inherits = require('util').inherits
 

@@ -1,4 +1,4 @@
-const { getLimit } = require('../lib/utils')
+const getLimit = require('../lib/utils/getLimit')
 const { assert } = require('chai')
 
 describe('Get limit', () => {

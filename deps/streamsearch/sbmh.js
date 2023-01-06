@@ -1,3 +1,5 @@
+'use strict'
+
 /**
  * Copyright Brian White. All rights reserved.
  *

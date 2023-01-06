@@ -1,5 +1,5 @@
 const { assert, expect } = require('chai')
-const { Decoder } = require('../lib/utils')
+const Decoder = require('../lib/utils/Decoder')
 
 describe('Decoder', () => {
   [

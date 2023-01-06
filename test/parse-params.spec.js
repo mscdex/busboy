@@ -1,6 +1,6 @@
 const { inspect } = require('util')
 const { assert } = require('chai')
-const { parseParams } = require('../lib/utils')
+const parseParams = require('../lib/utils/parseParams')
 
 describe('parse-params', () => {
   [
