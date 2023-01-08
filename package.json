@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "benchmark": "^2.1.4",
     "busboy": "^1.0.0",
     "chai": "^4.3.6",
     "eslint": "^8.23.0",
