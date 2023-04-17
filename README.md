@@ -4,6 +4,11 @@ A node.js module for parsing incoming HTML form data.
 
 Changes (breaking or otherwise) in v1.0.0 can be found [here](https://github.com/mscdex/busboy/issues/266).
 
+**Note:** If you are using node v18.0.0 or newer, please be aware of the node.js
+HTTP(S) server's [`requestTimeout`](https://nodejs.org/docs/latest/api/http.html#httpcreateserveroptions-requestlistener)
+configuration setting that is now enabled by default, which could cause upload
+interruptions if the upload takes too long.
+
 # Requirements
 
 * [node.js](http://nodejs.org/) -- v10.16.0 or newer
