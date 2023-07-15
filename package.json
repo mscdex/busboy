@@ -3,6 +3,9 @@
   "author": "Brian White <mscdex@mscdex.net>",
   "description": "A streaming parser for HTML form data for node.js",
   "main": "./lib/index.js",
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "streamsearch": "^1.1.0"
   },
