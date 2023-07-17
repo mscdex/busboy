@@ -146,6 +146,8 @@ http.createServer((req, res) => {
 
     * **preservePath** - _boolean_ - If paths in filenames from file parts in a `'multipart/form-data'` request shall be preserved. **Default:** `false`.
 
+    * **bufferOutput** - _boolean_ - If provided, fields part will be emitted as Buffer and not as text. **Default:** `false`.
+
     * **limits** - _object_ - Various limits on incoming data. Valid properties are:
 
         * **fieldNameSize** - _integer_ - Max field name size (in bytes). **Default:** `100`.
