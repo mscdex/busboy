@@ -17,6 +17,6 @@
   },
   "engines": { "node": ">=10.16.0" },
   "keywords": [ "uploads", "forms", "multipart", "form-data" ],
-  "licenses": [ { "type": "MIT", "url": "http://github.com/mscdex/busboy/raw/master/LICENSE" } ],
+  "licenses": "MIT",
   "repository": { "type": "git", "url": "http://github.com/mscdex/busboy.git" }
 }
