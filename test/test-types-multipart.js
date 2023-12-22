@@ -129,6 +129,89 @@ const tests = [
     what: 'Fields only'
   },
   { source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name="cont"',
+      '',
+      'some random content',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name="pass"',
+      '',
+      'some random pass',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name=bit',
+      '',
+      '2',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
+      ].join('\r\n')
+    ],
+    limits: {
+      totalSize: 200
+    },
+    events:[],
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      { error: 'Max size reached!' }
+    ],
+    what: 'MaxSize limit'
+  },
+  { source: [
+      ['------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name="cont"',
+      '',
+      'some random content',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name="pass"',
+      '',
+      'some random pass',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+      'Content-Disposition: form-data; name=bit',
+      '',
+      '2',
+      '------WebKitFormBoundaryTB2MiQ36fnSJlrhY--'
+      ].join('\r\n')
+    ],
+    limits: {
+      totalSize: 350
+    },
+    boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
+    expected: [
+      {
+        type: 'field',
+        name: 'cont',
+        val: 'some random content',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain'
+        }
+      },
+      {
+        type: 'field',
+        name: 'pass',
+        val: 'some random pass',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain'
+        }
+      },
+      {
+        type: 'field',
+        name: 'bit',
+        val: '2',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain'
+        }
+      },
+    ],
+    what: 'MaxSize limit is able to read entire thing'
+  },
+  { source: [
       ''
     ],
     boundary: '----WebKitFormBoundaryTB2MiQ36fnSJlrhY',
