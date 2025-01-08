@@ -867,6 +867,32 @@ const tests = [
     ],
     what: 'Empty part'
   },
+    { source: [
+            ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+                'Content-Disposition: form-data; '
+                + 'name="upload_file_0"; filename=""',
+                'Content-Type: application/octet-stream',
+                '',
+                '',
+                '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--',
+            ].join('\r\n')
+        ],
+        boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+        expected: [
+            { type: 'file',
+                name: 'upload_file_0',
+                data: new Buffer.from(''),
+                info: {
+                    filename: '',
+                    encoding: '7bit',
+                    mimeType: 'application/octet-stream',
+                },
+                limited: false,
+            }
+        ],
+        events: ['file'],
+        what: 'Optional file'
+    }
 ];
 
 for (const test of tests) {
