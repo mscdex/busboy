@@ -156,7 +156,7 @@ http.createServer((req, res) => {
 
         * **fileSize** - _integer_ - For multipart forms, the max file size (in bytes). **Default:** `Infinity`.
 
-        * **size** - _integer_ - For multipart forms, the max total size (in bytes) of all file data combined. **Default:** `Infinity`.
+        * **totalSize** - _integer_ - For multipart forms, the max total size (in bytes) of all file data combined. **Default:** `Infinity`.
 
         * **files** - _integer_ - For multipart forms, the max number of file fields. **Default:** `Infinity`.
 
@@ -181,7 +181,7 @@ This function can throw exceptions if there is something wrong with the values i
 
     **Note:** If a configured `limits.fileSize` limit was reached for a file, `stream` will both have a boolean property `truncated` set to `true` (best checked at the end of the stream) and emit a `'limit'` event to notify you when this happens.
     
-    Similarly, if a configured `limits.size` limit (total size of all files) was reached, the affected file `stream` will have `truncated` set to `true` and emit a `'sizeLimit'` event. Once this limit is reached, all subsequent file uploads will be automatically skipped.
+    Similarly, if a configured `limits.totalSize` limit (total size of all files) was reached, the affected file `stream` will have `truncated` set to `true` and emit a `'totalSizeLimit'` event. Once this limit is reached, all subsequent file uploads will be automatically skipped.
 
 * **field**(< _string_ >name, < _string_ >value, < _object_ >info) - Emitted for each new non-file field found. `name` contains the form field name. `value` contains the string value of the field. `info` contains the following properties:
 
@@ -199,4 +199,4 @@ This function can throw exceptions if there is something wrong with the values i
 
 * **fieldsLimit**() - Emitted when the configured `limits.fields` limit has been reached. No more `'field'` events will be emitted.
 
-* **sizeLimit**() - Emitted when the configured `limits.size` limit has been reached. No more file data will be processed, and any subsequent file uploads will be automatically skipped. This event is emitted both on the affected file stream and on the busboy parser instance.
+* **totalSizeLimit**() - Emitted when the configured `limits.totalSize` limit has been reached. No more file data will be processed, and any subsequent file uploads will be automatically skipped. This event is emitted both on the affected file stream and on the busboy parser instance.

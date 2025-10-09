@@ -63,7 +63,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_1',
@@ -74,7 +74,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Fields and files'
@@ -178,7 +178,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: true,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Fields and files (limits)'
@@ -209,7 +209,7 @@ const tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     limits: {
-      size: 26,
+      totalSize: 26,
     },
     expected: [
       { type: 'field',
@@ -231,9 +231,9 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: true,
+        totalSizeLimited: true,
       },
-      'sizeLimit',
+      'totalSizeLimit',
       { type: 'field',
         name: 'file_name_1',
         val: 'super beta file',
@@ -273,7 +273,7 @@ const tests = [
     ],
     boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
     limits: {
-      size: 15,
+      totalSize: 15,
       fileSize: 13,
     },
     expected: [
@@ -296,7 +296,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: true,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'field',
         name: 'file_name_1',
@@ -316,10 +316,10 @@ const tests = [
           encoding: '7bit',
           mimeType: 'application/octet-stream',
         },
-        sizeLimited: true,
+        totalSizeLimited: true,
         limited: false,
       },
-      'sizeLimit',
+      'totalSizeLimit',
     ],
     what: 'Total size and file size (limits)'
   },
@@ -439,7 +439,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_1',
@@ -450,7 +450,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_2',
@@ -461,7 +461,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Files with filenames containing paths'
@@ -500,7 +500,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_1',
@@ -511,7 +511,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_2',
@@ -522,7 +522,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Paths to be preserved through the preservePath option'
@@ -576,7 +576,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Unicode filenames'
@@ -649,7 +649,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
         err: 'Unexpected end of form',
       },
       { error: 'Unexpected end of form' },
@@ -676,7 +676,7 @@ const tests = [
           mimeType: 'application/octet-stream',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
         err: 'Unexpected end of form',
       },
       { error: 'Unexpected end of form' },
@@ -704,7 +704,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Text file with charset'
@@ -731,7 +731,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Folded header value'
@@ -777,7 +777,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     events: [ 'file' ],
@@ -878,7 +878,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       'filesLimit',
     ],
@@ -912,7 +912,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Oversized part header'
@@ -940,7 +940,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Lookbehind data should not stall file streams'
@@ -978,7 +978,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_1',
@@ -989,7 +989,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
       { type: 'file',
         name: 'upload_file_2',
@@ -1000,7 +1000,7 @@ const tests = [
           mimeType: 'text/plain',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Header size limit should be per part'
@@ -1024,7 +1024,7 @@ const tests = [
           mimeType: 'application/gzip',
         },
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       },
     ],
     what: 'Empty part'
@@ -1061,7 +1061,7 @@ for (const test of tests) {
         data: null,
         info,
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       };
       results.push(file);
       stream.on('data', (d) => {
@@ -1069,11 +1069,11 @@ for (const test of tests) {
         nb += d.length;
       }).on('limit', () => {
         file.limited = true;
-      }).on('sizeLimit', () => {
-        file.sizeLimited = true;
+      }).on('totalSizeLimit', () => {
+        file.totalSizeLimited = true;
       }).on('close', () => {
         file.data = Buffer.concat(data, nb);
-        assert.strictEqual(stream.truncated, file.limited || file.sizeLimited);
+        assert.strictEqual(stream.truncated, file.limited || file.totalSizeLimited);
       }).once('error', (err) => {
         file.err = err.message;
       });
@@ -1092,8 +1092,8 @@ for (const test of tests) {
     results.push('filesLimit');
   });
 
-  bb.on('sizeLimit', () => {
-    results.push('sizeLimit');
+  bb.on('totalSizeLimit', () => {
+    results.push('totalSizeLimit');
   });
 
   bb.on('fieldsLimit', () => {
@@ -1152,7 +1152,7 @@ for (let test of tests) {
         data: null,
         info,
         limited: false,
-        sizeLimited: false,
+        totalSizeLimited: false,
       };
       results.push(file);
       stream.on('data', (d) => {
@@ -1160,11 +1160,11 @@ for (let test of tests) {
         nb += d.length;
       }).on('limit', () => {
         file.limited = true;
-      }).on('sizeLimit', () => {
-        file.sizeLimited = true;
+      }).on('totalSizeLimit', () => {
+        file.totalSizeLimited = true;
       }).on('close', () => {
         file.data = Buffer.concat(data, nb);
-        assert.strictEqual(stream.truncated, file.limited || file.sizeLimited);
+        assert.strictEqual(stream.truncated, file.limited || file.totalSizeLimited);
       }).once('error', (err) => {
         file.err = err.message;
       });
@@ -1187,8 +1187,8 @@ for (let test of tests) {
     results.push('fieldsLimit');
   });
 
-  bb.on('sizeLimit', () => {
-    results.push('sizeLimit');
+  bb.on('totalSizeLimit', () => {
+    results.push('totalSizeLimit');
   });
 
   bb.on('close', () => {
