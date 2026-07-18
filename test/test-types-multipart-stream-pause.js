@@ -5,6 +5,7 @@ const { randomFillSync } = require('crypto');
 const { inspect } = require('util');
 
 const busboy = require('..');
+const dp = (o) => Object.assign(Object.create(null), o);
 
 const { mustCall } = require('./common.js');
 
@@ -49,6 +50,7 @@ const expected = [
       filename: 'file.bin',
       encoding: '7bit',
       mimeType: 'application/octet-stream',
+      dispositionParams: dp({ name: 'file', filename: 'file.bin' }),
     },
   },
   { type: 'field',
@@ -59,6 +61,7 @@ const expected = [
       valueTruncated: false,
       encoding: '7bit',
       mimeType: 'text/plain',
+      dispositionParams: dp({ name: 'foo' }),
     },
   },
   { type: 'field',
@@ -69,6 +72,7 @@ const expected = [
       valueTruncated: false,
       encoding: '7bit',
       mimeType: 'text/plain',
+      dispositionParams: dp({ name: 'bar' }),
     },
   },
 ];
