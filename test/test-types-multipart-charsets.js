@@ -6,6 +6,7 @@ const { inspect } = require('util');
 const { mustCall } = require(`${__dirname}/common.js`);
 
 const busboy = require('..');
+const dp = (o) => Object.assign(Object.create(null), o);
 
 const input = Buffer.from([
   '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
@@ -25,6 +26,7 @@ const expected = [
       filename: 'テスト.dat',
       encoding: '7bit',
       mimeType: 'application/octet-stream',
+      dispositionParams: dp({ name: 'upload_file_0', filename: 'テスト.dat' }),
     },
     limited: false,
   },
