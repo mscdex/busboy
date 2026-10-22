@@ -7,6 +7,13 @@ const busboy = require('..');
 
 const active = new Map();
 
+function fillerHeaders(n) {
+  const headers = [];
+  for (let i = 0; i < n; ++i)
+    headers.push('a: b');
+  return headers;
+}
+
 const tests = [
   { source: [
       ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
@@ -866,6 +873,75 @@ const tests = [
       },
     ],
     what: 'Empty part'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k']
+        .concat(fillerHeaders(2))
+        .concat([
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'alpha',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ])
+        .join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: { headerPairs: 2 },
+    expected: [],
+    what: 'Limits: headerPairs below default drops later header pairs'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k']
+        .concat(fillerHeaders(1999))
+        .concat([
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'alpha',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ])
+        .join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    limits: { headerPairs: 5000 },
+    expected: [
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'alpha',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+    ],
+    what: 'Limits: headerPairs above default keeps header pair 2000'
+  },
+  { source: [
+      ['-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k']
+        .concat(fillerHeaders(1999))
+        .concat([
+          'Content-Disposition: form-data; name="file_name_0"',
+          '',
+          'alpha',
+          '-----------------------------paZqsnEHRufoShdX6fh0lUhXBP4k--'
+        ])
+        .join('\r\n')
+    ],
+    boundary: '---------------------------paZqsnEHRufoShdX6fh0lUhXBP4k',
+    expected: [
+      { type: 'field',
+        name: 'file_name_0',
+        val: 'alpha',
+        info: {
+          nameTruncated: false,
+          valueTruncated: false,
+          encoding: '7bit',
+          mimeType: 'text/plain',
+        },
+      },
+    ],
+    what: 'Limits: default headerPairs keeps header pair 2000'
   },
 ];
 
